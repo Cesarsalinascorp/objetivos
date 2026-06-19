@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Digital SAVAL 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --purple:#534AB7;--purple-light:#EEEDFE;--purple-mid:#AFA9EC;
+  --amber:#EF9F27;--amber-light:#FAEEDA;
+  --green:#639922;--green-light:#EAF3DE;
+  --red:#E24B4A;--red-light:#FCEBEB;
+  --gray-light:#F1EFE8;
+  --bg:#fff;--bg2:#f7f7f5;--bg3:#f0efe8;
+  --text:#1a1a1a;--text2:#555;--text3:#999;
+  --border:#e0dfd8;--border2:#c8c7bf;
+  --radius:8px;--radius-lg:12px
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#1a1a1a;--bg2:#242424;--bg3:#2e2e2e;--text:#f0f0f0;--text2:#aaa;--text3:#666;--border:#333;--border2:#444}
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;background:var(--bg3);color:var(--text);min-height:100vh}
+
+/* ── NAV ── */
+.main-nav{background:var(--bg);border-bottom:0.5px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100}
+.nav-brand{font-size:14px;font-weight:600;color:var(--purple);margin-right:24px;padding:14px 0;white-space:nowrap}
+.nav-tabs{display:flex;gap:2px}
+.nav-tab{font-size:13px;padding:14px 16px;border:none;background:none;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.nav-tab:hover{color:var(--text)}
+.nav-tab.active{color:var(--purple);border-bottom-color:var(--purple);font-weight:500}
+.nav-date{margin-left:auto;font-size:11px;color:var(--text3);padding:14px 0}
+
+/* ── SECTIONS ── */
+.section{display:none;max-width:960px;margin:0 auto;padding:24px 16px}
+.section.active{display:block}
+
+/* ── SHARED ── */
+.summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.sum-card{background:var(--bg2);border-radius:var(--radius);padding:10px 14px}
+.sum-n{font-size:22px;font-weight:600;color:var(--text)}
+.sum-l{font-size:11px;color:var(--text2);margin-top:2px}
+.top-bar{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap}
+select{font-size:12px;padding:5px 10px;border-radius:var(--radius);border:0.5px solid var(--border);background:var(--bg);color:var(--text)}
+
+/* ── OBJECTIVES ── */
+.person-tabs{display:flex;gap:4px;background:var(--bg2);border-radius:var(--radius);padding:3px}
+.ptab{font-size:12px;padding:5px 14px;border-radius:6px;border:none;background:none;color:var(--text2);cursor:pointer}
+.ptab.active{background:var(--bg);color:var(--text);border:0.5px solid var(--border)}
+.obj-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);margin-bottom:10px;overflow:hidden}
+.obj-header{display:flex;align-items:flex-start;gap:10px;padding:13px 16px;cursor:pointer;user-select:none}
+.obj-header:hover{background:var(--bg2)}
+.semaforo{width:13px;height:13px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.s-verde{background:#639922}.s-sobre{background:#534AB7}.s-amarillo{background:#EF9F27}.s-rojo{background:#E24B4A}.s-gris{background:#B4B2A9}
+.obj-num{font-size:11px;font-weight:600;color:var(--text3);flex-shrink:0;min-width:18px;margin-top:2px}
+.obj-title{font-size:13px;font-weight:500;color:var(--text);flex:1;line-height:1.45}
+.chev{color:var(--text3);font-size:11px;flex-shrink:0;transition:transform .15s;margin-top:2px}
+.chev.open{transform:rotate(90deg)}
+.obj-body{border-top:0.5px solid var(--border);padding:14px 16px}
+.sub-obj{background:var(--bg2);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px}
+.sub-obj:last-child{margin-bottom:0}
+.sub-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px}
+.sub-semaforo{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.sub-title{font-size:12px;color:var(--text);flex:1;line-height:1.4}
+.sub-peso{font-size:10px;color:var(--text3);white-space:nowrap;flex-shrink:0}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:6px;margin-bottom:8px}
+.metric-box{background:var(--bg);border:0.5px solid var(--border);border-radius:6px;padding:7px 10px}
+.metric-lbl{font-size:10px;color:var(--text2);margin-bottom:2px}
+.metric-meta{font-size:10px;color:var(--text3);margin-bottom:4px}
+.metric-input{font-size:12px;padding:4px 7px;border-radius:5px;border:0.5px solid var(--border);background:var(--bg);color:var(--text);width:100%}
+.metric-input:focus{outline:none;border-color:var(--purple-mid)}
+.progress-wrap{margin-top:8px}
+.progress-lbl{display:flex;justify-content:space-between;font-size:10px;color:var(--text2);margin-bottom:3px}
+.progress-bg{height:5px;background:var(--bg3);border-radius:20px;overflow:hidden}
+.progress-fill{height:100%;border-radius:20px;transition:width .4s}
+.fill-sobre{background:#534AB7}.fill-verde{background:#639922}.fill-amarillo{background:#EF9F27}.fill-rojo{background:#E24B4A}.fill-gris{background:#B4B2A9}
+.alert-box{margin-top:8px;padding:7px 10px;border-radius:6px;font-size:11px;line-height:1.5}
+.alert-rojo{background:var(--red-light);color:#791F1F;border:0.5px solid #F09595}
+.alert-amarillo{background:var(--amber-light);color:#633806;border:0.5px solid #FAC775}
+.alert-verde{background:var(--green-light);color:#27500A;border:0.5px solid #C0DD97}
+.alert-sobre{background:var(--purple-light);color:#3C3489;border:0.5px solid var(--purple-mid)}
+.nota-row{margin-top:8px}
+.nota-input{width:100%;font-size:11px;padding:5px 8px;border-radius:6px;border:0.5px solid var(--border);background:var(--bg);color:var(--text);font-family:inherit}
+.nota-input:focus{outline:none;border-color:var(--purple-mid)}
+.nota-input::placeholder{color:var(--text3)}
+.empty-person{text-align:center;padding:3rem;color:var(--text2);font-size:13px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg)}
+
+/* ── CUADRO FIJO CUMPLIMIENTO PERSONAL ── */
+.perfil-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:12px}
+.perfil-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.perfil-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;flex-shrink:0}
+.perfil-name{font-size:14px;font-weight:500;color:var(--text)}
+.perfil-mes{font-size:11px;color:var(--text3);margin-top:1px}
+.perfil-global{margin-left:auto;text-align:right}
+.perfil-global-n{font-size:24px;font-weight:600;line-height:1}
+.perfil-global-l{font-size:10px;color:var(--text3);margin-top:2px}
+.perfil-grid{display:flex;flex-direction:column;gap:5px}
+.pobj-row{background:var(--bg2);border-radius:var(--radius);padding:8px 12px;display:flex;align-items:center;gap:10px}
+.pobj-top{display:flex;align-items:center;gap:7px;flex:1;min-width:0}
+.pobj-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.pobj-num{font-size:11px;color:var(--text3);flex-shrink:0;min-width:16px}
+.pobj-title{font-size:12px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pobj-pct{font-size:13px;font-weight:600;flex-shrink:0;min-width:38px;text-align:right}
+.pobj-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.pobj-bar-bg{width:100px;height:5px;background:var(--bg3);border-radius:20px;overflow:hidden;position:relative;flex-shrink:0}
+.pobj-bar-fill{height:100%;border-radius:20px;transition:width .4s}
+.pobj-marker{position:absolute;top:-3px;width:2px;height:11px;background:rgba(83,74,183,.45);border-radius:1px}
+.pobj-brecha{font-size:10px;color:var(--text3);white-space:nowrap;min-width:160px;text-align:right}
+.pobj-tag{font-size:10px;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;min-width:90px;text-align:center}
+
+/* ── RECOMENDACIONES EQUIPO ── */
+.rec-equipo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.rec-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px}
+.rec-card-header{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.rec-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.rec-name{font-size:12px;font-weight:500;color:var(--text)}
+.rec-textarea{width:100%;font-size:11px;padding:6px 8px;border-radius:6px;border:0.5px solid var(--border);background:var(--bg);color:var(--text);resize:vertical;font-family:inherit;line-height:1.5;min-height:72px}
+.rec-textarea:focus{outline:none;border-color:var(--purple-mid)}
+.rec-textarea::placeholder{color:var(--text3)}
+
+/* ── GRID UNE DETALLE ── */
+.une-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:8px}
+.une-cell{background:var(--bg2);border:0.5px solid var(--border);border-radius:5px;padding:5px 4px;text-align:center}
+.une-cell.total-cell{background:var(--purple-light);border-color:var(--purple-mid)}
+.une-lbl{font-size:9px;color:var(--text3);font-weight:500;text-transform:uppercase;margin-bottom:3px}
+.une-input{width:100%;font-size:12px;font-weight:500;text-align:center;border:none;background:transparent;color:var(--text);padding:0;outline:none}
+.une-input:focus{color:var(--purple)}
+.une-total{font-size:13px;font-weight:600;color:var(--purple)}
+
+/* ── ENTREGABLE MENSUAL ── */
+.entregable-block{background:var(--bg);border:0.5px solid var(--border);border-radius:6px;padding:8px 10px;margin-bottom:4px}
+.entregable-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.entregable-lbl{font-size:11px;color:var(--text2);flex:1}
+.entregable-meta{font-size:10px;color:var(--text3)}
+.entregable-body{display:flex;flex-direction:column;gap:6px}
+.entregable-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.entregable-input{flex:1;min-width:120px;font-size:11px;padding:4px 8px;border-radius:5px;border:0.5px solid var(--border);background:var(--bg);color:var(--text)}
+.entregable-input:focus{outline:none;border-color:var(--purple-mid)}
+.entregable-link{flex:2;min-width:160px;font-size:11px;padding:4px 8px;border-radius:5px;border:0.5px solid var(--border);background:var(--bg);color:var(--text)}
+.entregable-link:focus{outline:none;border-color:var(--purple-mid)}
+.btn-completado{font-size:11px;padding:4px 12px;border-radius:5px;border:0.5px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;white-space:nowrap;flex-shrink:0}
+.btn-completado:hover{background:var(--green-light);border-color:#C0DD97;color:#27500A}
+.btn-completado.done{background:var(--green-light);border-color:#C0DD97;color:#27500A;font-weight:500}
+.entregable-fecha{font-size:11px;padding:4px 7px;border-radius:5px;border:0.5px solid var(--border);background:var(--bg);color:var(--text)}
+.entregable-link-view{font-size:10px;color:var(--purple);text-decoration:none;white-space:nowrap}
+.entregable-link-view:hover{text-decoration:underline}
+
+/* ── CUMPLIMIENTO ANUAL ── */
+.anual-panel{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:14px}
+.anual-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.anual-title{font-size:13px;font-weight:500;color:var(--text)}
+.anual-meta{font-size:11px;color:var(--text3)}
+.tiempo-bar-wrap{margin-bottom:12px}
+.tiempo-bar-lbl{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:3px}
+.tiempo-bar-bg{height:4px;background:var(--bg3);border-radius:20px;overflow:hidden}
+.tiempo-bar-fill{height:100%;background:var(--purple-mid);border-radius:20px}
+.obj-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--border)}
+.obj-row:last-child{border-bottom:none}
+.obj-row-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.obj-row-name{font-size:11px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+.obj-row-bar-bg{flex:1;height:6px;background:var(--bg3);border-radius:20px;overflow:hidden;min-width:50px;position:relative}
+.obj-row-bar{height:100%;border-radius:20px;transition:width .4s}
+.obj-row-marker{position:absolute;top:-2px;width:2px;height:10px;background:rgba(83,74,183,.5);border-radius:1px}
+.obj-row-pct{font-size:11px;font-weight:500;min-width:34px;text-align:right}
+.obj-row-tag{font-size:10px;padding:1px 7px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.oa-verde{background:var(--green-light);color:#27500A}
+.oa-amarillo{background:var(--amber-light);color:#633806}
+.oa-rojo{background:var(--red-light);color:#791F1F}
+.oa-gris{background:var(--gray-light);color:#555}
+.obj-anual-strip{padding:7px 16px 10px;background:var(--bg2);border-top:0.5px solid var(--border);display:flex;align-items:center;gap:10px}
+.obj-anual-lbl{font-size:10px;color:var(--text3);white-space:nowrap}
+.obj-anual-bar-bg{flex:1;height:5px;background:var(--bg3);border-radius:20px;overflow:hidden;position:relative}
+.obj-anual-bar-fill{height:100%;border-radius:20px;transition:width .4s}
+.obj-anual-marker{position:absolute;top:-2px;width:2px;height:9px;background:rgba(83,74,183,.6);border-radius:1px}
+.obj-anual-pct{font-size:11px;font-weight:500;min-width:34px;text-align:right}
+.obj-anual-tag{font-size:10px;padding:1px 7px;border-radius:20px;white-space:nowrap}
+
+/* ── GESTOR TAREAS ── */
+.project-block{margin-bottom:8px;border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg);transition:box-shadow .15s,opacity .15s}
+.project-block.dragging{opacity:.45;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.project-block.drag-over{border-color:var(--purple);box-shadow:0 0 0 2px var(--purple-light)}
+.project-header{display:flex;align-items:center;gap:8px;padding:11px 14px;background:var(--bg2);cursor:pointer;user-select:none}
+.project-header:hover{background:var(--bg3)}
+.drag-handle{cursor:grab;color:var(--text3);font-size:14px;padding:0 2px;flex-shrink:0}
+.project-name{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.project-type{font-size:10px;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.type-reporte{background:#EEEDFE;color:#3C3489}
+.type-diseno{background:#E1F5EE;color:#085041}
+.type-seguimiento{background:#FAEEDA;color:#633806}
+.type-plataforma{background:#FAECE7;color:#712B13}
+.progress-bar-wrap{width:70px;height:4px;background:var(--bg);border-radius:20px;overflow:hidden;border:0.5px solid var(--border)}
+.progress-bar-fill{height:100%;border-radius:20px;background:var(--purple);transition:width .3s}
+.project-pct{font-size:11px;color:var(--text3);min-width:28px;text-align:right}
+.project-dates{font-size:10px;color:var(--text3);white-space:nowrap}
+.resp-tag{font-size:10px;color:var(--text3);padding:2px 8px;border-radius:20px;background:var(--bg);border:0.5px solid var(--border);white-space:nowrap}
+.btn-x{width:20px;height:20px;border-radius:4px;border:1px solid var(--red);background:var(--red-light);color:var(--red);font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;padding:0}
+.btn-x:hover{background:var(--red);color:#fff}
+.subtasks{border-top:0.5px solid var(--border)}
+.subtask-row{border-bottom:0.5px solid var(--border)}
+.subtask-row:last-child{border-bottom:none}
+.subtask-row.sub-dragging{opacity:.4}
+.subtask-row.sub-drag-over{border-top:2px solid var(--purple)}
+.sub-main{display:flex;align-items:center;gap:7px;padding:8px 12px 8px 10px}
+.sub-main:hover{background:var(--bg2)}
+.sub-drag-handle{cursor:grab;color:var(--text3);font-size:13px;padding:0 3px;flex-shrink:0}
+.cb{width:16px;height:16px;border-radius:3px;border:1.5px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;transition:all .15s}
+.cb.checked{background:var(--purple);border-color:var(--purple);color:#fff}
+.subtask-text{font-size:12px;color:var(--text);flex:1;line-height:1.4}
+.subtask-text.done{text-decoration:line-through;color:var(--text3)}
+.subtask-date-input{font-size:11px;color:var(--text2);border:0.5px solid var(--border);border-radius:5px;padding:2px 6px;background:var(--bg2);cursor:pointer;width:112px}
+.subtask-date-input:hover{border-color:var(--border2)}
+.subtask-date-input:focus{outline:none;border-color:var(--purple-mid);background:var(--bg)}
+.resp-badge{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--bg2);color:var(--text2);border:0.5px solid var(--border);white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis}
+.sub-status-select{font-size:10px;padding:2px 6px;border-radius:20px;white-space:nowrap;cursor:pointer;border:none;font-family:inherit;font-weight:500;appearance:none;-webkit-appearance:none}
+.sub-status-select.st-pendiente{background:var(--gray-light);color:#444}
+.sub-status-select.st-proceso{background:var(--amber-light);color:#633806}
+.sub-status-select.st-listo{background:var(--green-light);color:#27500A}
+.sub-status-select.st-bloqueado{background:var(--red-light);color:#791F1F}
+.sub-actions{display:flex;gap:5px;flex-shrink:0;align-items:center}
+.btn-cmt{font-size:10px;padding:2px 8px;border-radius:5px;border:0.5px solid var(--border);background:transparent;color:var(--purple);cursor:pointer;white-space:nowrap}
+.btn-cmt:hover,.btn-cmt.active{background:var(--purple-light);border-color:var(--purple-mid)}
+.comment-panel{padding:10px 12px 12px 36px;background:#fffdf5;border-top:0.5px solid var(--border)}
+.comment-label{font-size:10px;color:var(--text3);margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.comment-box{width:100%;font-size:12px;padding:7px 9px;border-radius:6px;border:0.5px solid var(--border);background:var(--bg);color:var(--text);resize:vertical;font-family:inherit;line-height:1.5;min-height:56px}
+.comment-box:focus{outline:none;border-color:var(--purple-mid)}
+.comment-meta{display:flex;gap:10px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.comment-meta label{font-size:11px;color:var(--text3)}
+.comment-meta input{font-size:11px;padding:4px 8px;border-radius:6px;border:0.5px solid var(--border);background:var(--bg);color:var(--text)}
+.add-sub-row{display:flex;gap:6px;padding:8px 12px;border-top:0.5px solid var(--border);background:var(--bg2);flex-wrap:wrap}
+.add-sub-row input[type=text]{flex:1;min-width:100px;font-size:12px;padding:5px 8px;border-radius:6px;border:0.5px solid var(--border);background:var(--bg);color:var(--text)}
+.add-sub-row input[type=date],.add-sub-row select{font-size:11px;padding:5px 6px;border-radius:6px;border:0.5px solid var(--border);background:var(--bg);color:var(--text)}
+.add-sub-row button{font-size:11px;padding:5px 12px;border-radius:6px;border:0.5px solid var(--border2);background:var(--bg);color:var(--text);cursor:pointer}
+.add-form{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:12px;display:none}
+.add-form.visible{display:block}
+.add-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.add-form-grid input,.add-form-grid select{font-size:12px;padding:7px 10px;border-radius:var(--radius);border:0.5px solid var(--border);background:var(--bg);color:var(--text)}
+.add-form-actions{display:flex;gap:8px;justify-content:flex-end}
+.btn{font-size:12px;padding:6px 14px;border-radius:var(--radius);border:0.5px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.btn:hover{background:var(--bg2)}
+.week-nav{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.week-nav button{background:none;border:0.5px solid var(--border);border-radius:var(--radius);padding:5px 12px;cursor:pointer;color:var(--text2);font-size:12px}
+.week-nav button:hover{background:var(--bg2)}
+.wlabel{font-size:13px;font-weight:500;color:var(--text)}
+.week-header{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:6px}
+.week-day-hdr{text-align:center;font-size:11px;color:var(--text2);padding:4px;font-weight:500}
+.week-day-hdr.today{color:var(--purple);font-weight:700}
+.week-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.week-col{background:var(--bg2);border-radius:var(--radius);padding:8px;min-height:100px}
+.week-col.today-col{border:1.5px solid var(--purple-mid)}
+.week-chip{background:var(--bg);border:0.5px solid var(--border);border-radius:6px;padding:6px 8px;margin-bottom:5px;font-size:11px;color:var(--text);border-left:3px solid transparent}
+.chip-parent{font-size:10px;color:var(--text3);margin-bottom:2px}
+.view-tabs{display:flex;gap:3px;background:var(--bg2);border-radius:var(--radius);padding:3px}
+.view-tab{font-size:12px;padding:4px 14px;border-radius:6px;border:none;background:none;color:var(--text2);cursor:pointer}
+.view-tab.active{background:var(--bg);color:var(--text);border:0.5px solid var(--border)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--green-light);color:#27500A;font-size:12px;padding:8px 16px;border-radius:var(--radius);border:0.5px solid #C0DD97;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+.chev-g{color:var(--text3);font-size:11px;transition:transform .15s;display:inline-block}
+.chev-g.open{transform:rotate(90deg)}
+</style>
+</head>
+<body>
+
+<div id="access-gate" style="position:fixed;inset:0;background:#f0efe8;z-index:10000;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <div style="background:#fff;border-radius:14px;padding:32px 28px;width:90%;max-width:340px;box-shadow:0 8px 30px rgba(0,0,0,0.08);text-align:center">
+    <div style="font-size:16px;font-weight:600;color:#1a1a1a;margin-bottom:4px">SAVAL Digital 2026</div>
+    <div style="font-size:12px;color:#888;margin-bottom:20px">Ingresa la clave de acceso del equipo</div>
+    <input id="access-pass" type="password" placeholder="Clave de acceso" style="width:100%;font-size:14px;padding:10px 12px;border-radius:8px;border:1px solid #ddd;margin-bottom:10px;box-sizing:border-box" onkeydown="if(event.key==='Enter')checkAccess()">
+    <button onclick="checkAccess()" style="width:100%;font-size:13px;padding:10px;border-radius:8px;border:none;background:#534AB7;color:#fff;cursor:pointer;font-weight:500">Entrar</button>
+    <div id="access-error" style="font-size:11px;color:#E24B4A;margin-top:10px;display:none">Clave incorrecta, intenta de nuevo</div>
+  </div>
+</div>
+
+<script>
+const ACCESS_PASS='saval2026'; // cámbiala cuando quieras, ver instrucciones
+function checkAccess(){
+  const v=document.getElementById('access-pass').value;
+  if(v===ACCESS_PASS){
+    sessionStorage.setItem('saval_access_ok','1');
+    document.getElementById('access-gate').style.display='none';
+  } else {
+    document.getElementById('access-error').style.display='block';
+  }
+}
+if(sessionStorage.getItem('saval_access_ok')==='1'){
+  document.addEventListener('DOMContentLoaded',()=>{
+    const g=document.getElementById('access-gate');
+    if(g) g.style.display='none';
+  });
+}
+</script>
+
+
+<nav class="main-nav">
+  <span class="nav-brand">SAVAL Digital 2026</span>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showSection('objetivos',this)">Objetivos equipo</button>
+    <button class="nav-tab" onclick="showSection('gestor',this)">Gestor tareas</button>
+  </div>
+  <span class="nav-date" id="nav-date"></span>
+</nav>
+
+<!-- ═══════════════ OBJETIVOS ═══════════════ -->
+<div class="section active" id="sec-objetivos">
+  <div class="top-bar">
+    <div class="person-tabs">
+      <button class="ptab active" onclick="setPerson('cesar',this)">César</button>
+      <button class="ptab" onclick="setPerson('dani',this)">Dani</button>
+      <button class="ptab" onclick="setPerson('tati',this)">Tati</button>
+      <button class="ptab" onclick="setPerson('juan',this)">Juan</button>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="display:flex;gap:3px;background:var(--bg2);border-radius:var(--radius);padding:3px">
+          <button id="vtab-mes" onclick="setVista('mes',this)" style="font-size:12px;padding:4px 14px;border-radius:6px;border:none;cursor:pointer;background:var(--bg);color:var(--text);border:0.5px solid var(--border)">Mes</button>
+          <button id="vtab-acum" onclick="setVista('acum',this)" style="font-size:12px;padding:4px 14px;border-radius:6px;border:none;cursor:pointer;background:none;color:var(--text2)">Acumulado</button>
+        </div>
+        <select id="month-to" onchange="setMonthRange()" style="font-size:12px;padding:5px 10px;border-radius:var(--radius);border:0.5px solid var(--border);background:var(--bg);color:var(--text)">
+          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+          <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+        <span id="vista-lbl" style="font-size:11px;color:var(--text3)"></span>
+      </div>
+    </div>
+  </div>
+  <div class="summary-row">
+    <div class="sum-card"><div class="sum-n" id="s-total">0</div><div class="sum-l">Objetivos</div></div>
+    <div class="sum-card"><div class="sum-n" id="s-verde" style="color:#639922">0</div><div class="sum-l">En verde</div></div>
+    <div class="sum-card"><div class="sum-n" id="s-amarillo" style="color:#EF9F27">0</div><div class="sum-l">En alerta</div></div>
+    <div class="sum-card"><div class="sum-n" id="s-rojo" style="color:#E24B4A">0</div><div class="sum-l">En riesgo</div></div>
+  </div>
+  <div id="perfil-card"></div>
+  <div id="anual-panel"></div>
+  <div id="obj-panel"></div>
+</div>
+
+<!-- ═══════════════ GESTOR ═══════════════ -->
+<div class="section" id="sec-gestor">
+  <div class="top-bar">
+    <div class="view-tabs">
+      <button class="view-tab active" onclick="setGestorView('lista',this)">Lista</button>
+      <button class="view-tab" onclick="setGestorView('semana',this)">Semana</button>
+    </div>
+    <div style="margin-left:auto">
+      <button class="btn" onclick="toggleAddForm()">+ Nueva tarea madre</button>
+    </div>
+  </div>
+
+  <div class="add-form" id="add-form">
+    <div style="font-size:13px;font-weight:500;margin-bottom:10px">Nueva tarea madre</div>
+    <div class="add-form-grid">
+      <input id="np-name" type="text" placeholder="Nombre..." style="grid-column:1/-1">
+      <select id="np-type"><option value="reporte">Reporte</option><option value="diseno">Diseño</option><option value="seguimiento">Seguimiento</option><option value="plataforma">Plataforma</option></select>
+      <input id="np-resp" type="text" placeholder="Responsable">
+      <input id="np-start" type="date"><input id="np-end" type="date">
+    </div>
+    <div class="add-form-actions">
+      <button class="btn" onclick="toggleAddForm()">Cancelar</button>
+      <button class="btn" onclick="addProject()">Agregar</button>
+    </div>
+  </div>
+
+  <div id="g-lista">
+    <div class="summary-row">
+      <div class="sum-card"><div class="sum-n" id="g-total">0</div><div class="sum-l">Total subtareas</div></div>
+      <div class="sum-card"><div class="sum-n" id="g-pend" style="color:var(--amber)">0</div><div class="sum-l">Pendientes</div></div>
+      <div class="sum-card"><div class="sum-n" id="g-proc" style="color:var(--purple)">0</div><div class="sum-l">En proceso</div></div>
+      <div class="sum-card"><div class="sum-n" id="g-done" style="color:var(--green)">0</div><div class="sum-l">Completadas</div></div>
+    </div>
+    <div id="projects-list"></div>
+  </div>
+
+  <div id="g-semana" style="display:none">
+    <div class="week-nav">
+      <button onclick="shiftWeek(-1)">&#8249; Anterior</button>
+      <span class="wlabel" id="week-label"></span>
+      <button onclick="shiftWeek(1)">Siguiente &#8250;</button>
+      <button onclick="goToday()" style="margin-left:6px">Hoy</button>
+    </div>
+    <div class="week-header" id="week-header"></div>
+    <div class="week-grid" id="week-grid"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Guardado ✓</div>
+
+<script>
+/* ════════ SUPABASE SYNC ════════ */
+const SUPABASE_URL='https://pfajjfglzsvribhremwf.supabase.co';
+const SUPABASE_KEY='sb_publishable_btGXQfzBY0y16dDO4E3nmg_uJlZOfOP';
+const SB_HEADERS={
+  'apikey':SUPABASE_KEY,
+  'Authorization':'Bearer '+SUPABASE_KEY,
+  'Content-Type':'application/json'
+};
+
+// Caché local en memoria — espejo de lo que hay en Supabase
+let cloudStore={};
+let cloudReady=false;
+let syncQueue=new Set();
+let syncTimer=null;
+
+// Carga inicial: trae TODAS las filas de la tabla panel_datos
+async function cloudLoadAll(){
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/panel_datos?select=clave,valor', {headers:SB_HEADERS});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const rows=await res.json();
+    cloudStore={};
+    rows.forEach(r=>{ cloudStore[r.clave]=r.valor; });
+    cloudReady=true;
+  }catch(e){
+    console.error('Error cargando datos de Supabase:',e);
+    cloudReady=true; // seguir igual, arranca vacío
+  }
+}
+
+// Lectura síncrona desde el caché en memoria (ya cargado al inicio)
+function cloudGet(key){
+  return cloudStore.hasOwnProperty(key) ? cloudStore[key] : '';
+}
+
+// Escritura: actualiza caché local al instante y encola sync a Supabase
+function cloudSet(key,value){
+  cloudStore[key]=value;
+  syncQueue.add(key);
+  scheduleSync();
+}
+
+function cloudDelete(key){
+  delete cloudStore[key];
+  syncDeleteRemote(key);
+}
+
+// Agrupa escrituras en lotes cada 600ms para no saturar la red mientras se escribe
+function scheduleSync(){
+  if(syncTimer) clearTimeout(syncTimer);
+  syncTimer=setTimeout(flushSyncQueue, 600);
+}
+
+async function flushSyncQueue(){
+  const keys=Array.from(syncQueue);
+  syncQueue.clear();
+  if(keys.length===0) return;
+  const rows=keys.map(k=>({clave:k, valor:cloudStore[k], updated_at:new Date().toISOString()}));
+  try{
+    await fetch(SUPABASE_URL+'/rest/v1/panel_datos?on_conflict=clave', {
+      method:'POST',
+      headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
+      body:JSON.stringify(rows)
+    });
+    showCloudSynced();
+  }catch(e){
+    console.error('Error sincronizando con Supabase:',e);
+  }
+}
+
+async function syncDeleteRemote(key){
+  try{
+    await fetch(SUPABASE_URL+'/rest/v1/panel_datos?clave=eq.'+encodeURIComponent(key), {
+      method:'DELETE', headers:SB_HEADERS
+    });
+  }catch(e){console.error('Error eliminando de Supabase:',e);}
+}
+
+function showCloudSynced(){
+  const t=document.getElementById('toast');
+  if(!t) return;
+  t.textContent='Guardado en la nube ✓';
+  t.style.opacity='1';
+  setTimeout(()=>{t.style.opacity='0';t.textContent='Guardado ✓';},1500);
+}
+
+/* ════════ SHARED ════════ */
+const MESES=['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DAYS=['Lun','Mar','Mié','Jue','Vie'];
+const MONTHS_S=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const now=new Date();
+document.getElementById('nav-date').textContent=`${now.getDate()} ${MESES[now.getMonth()+1]} ${now.getFullYear()}`;
+// Inicializar selector mes
+const curM=now.getMonth()+1;
+setTimeout(()=>{
+  const mt=document.getElementById('month-to');
+  if(mt)mt.value=curM;
+  currentMonth=curM;currentMonthFrom=1;
+  updateVistaLbl();
+},0);
+
+function showSection(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='gestor')renderGestor();
+}
+function showToast(){const t=document.getElementById('toast');t.style.opacity='1';setTimeout(()=>t.style.opacity='0',1500)}
+function fmt(d){return d?d.split('-').reverse().join('/'):'—'}
+
+/* ════════ OBJETIVOS ════════ */
+const APP_VERSION='saval2026v3';
+let currentPerson='cesar', currentMonth=now.getMonth()+1, currentMonthFrom=1, vistaMode='mes', openObjs={};
+currentPerson='cesar';
+
+const objData={
+  cesar:{nombre:'César',objetivos:[
+    {id:'c1',num:1,titulo:'Digital News Chile, Ecuador y Costa Rica + 3 insights por mercado',open:true,subs:[
+      {id:'c1a',titulo:'Digital News Chile — envío mensual antes del 22, validado con jefatura',peso:30,campos:[
+        {key:'dn_chile',lbl:'DN Chile enviado antes del 22',meta:100,meta_lbl:'Meta: mensual antes del 22',tipo:'entregable',inicio:1,
+         hint:'Marca completado cuando envíes el DN Chile ese mes. Agrega el link del archivo y la fecha real de envío.'}]},
+      {id:'c1b',titulo:'Digital News Ecuador — construcción (cierre mayo) + entrega bimensual con 3 insights',peso:35,campos:[
+        {key:'dn_ecu',lbl:'DN Ecuador entregado',meta:100,meta_lbl:'Meta: bimensual desde mayo',tipo:'entregable',inicio:5,
+         hint:'Marca completado cada vez que entregues el DN Ecuador (cada 2 meses desde mayo). Agrega el link y la fecha.'},
+        {key:'insights_ecu',lbl:'Insights accionables Ecuador entregados',meta:3,meta_lbl:'Meta: 3 insights por entrega',tipo:'puntual',inicio:5,
+         hint:'Ingresa cuántos insights accionables incluiste en esta entrega. La meta es 3 por mercado por entrega bimensual.'}]},
+      {id:'c1c',titulo:'Digital News Costa Rica — construcción (cierre mayo) + entrega bimensual con 3 insights',peso:35,campos:[
+        {key:'dn_cr',lbl:'DN Costa Rica entregado',meta:100,meta_lbl:'Meta: bimensual desde mayo',tipo:'entregable',inicio:5,
+         hint:'Marca completado cada vez que entregues el DN Costa Rica (cada 2 meses desde mayo). Agrega el link y la fecha.'},
+        {key:'insights_cr',lbl:'Insights accionables Costa Rica entregados',meta:3,meta_lbl:'Meta: 3 insights por entrega',tipo:'puntual',inicio:5,
+         hint:'Ingresa cuántos insights accionables incluiste en esta entrega. La meta es 3 por mercado por entrega bimensual.'}]}
+    ]},
+    {id:'c2',num:2,titulo:'Campaña BS 2026 — seguimiento, optimización y Looker completo antes del Q2',open:false,subs:[
+      {id:'c2a',titulo:'Liderar optimización semanal BS desde junio, status semanal al equipo, ≥15% mejora vs Q3/Q4 2025',peso:30,campos:[
+        {key:'mejora_indicadores',lbl:'Mejora indicadores vs 2025 (%)',meta:15,meta_lbl:'Meta: ≥15%',tipo:'puntual',inicio:6},
+        {key:'status_semanal',lbl:'Status semanales enviados este mes',meta:4,meta_lbl:'Meta: 4 por mes',tipo:'puntual',inicio:6}]},
+      {id:'c2b',titulo:'Dashboard Looker completo en funnel, validado y operativo antes del 30 jun 2026 con insights mensuales',peso:30,campos:[
+        {key:'looker_ok',lbl:'Looker terminado y validado (100=Sí)',meta:100,meta_lbl:'Meta: 30 jun 2026',tipo:'entregable',inicio:6}]},
+      {id:'c2c',titulo:'Crecimiento 25% tráfico de calidad y 5.000 nuevos leads segmentados en SF a dic 2026',peso:40,campos:[
+        {key:'trafico_calidad',lbl:'Crecimiento tráfico calidad (%)',meta:25,meta_lbl:'Meta: 25%',tipo:'acum',inicio:6},
+        {key:'leads',lbl:'Leads acumulados en SF',meta:5000,meta_lbl:'Meta: 5.000',tipo:'acum',inicio:6}]}
+    ]},
+    {id:'c3',num:3,titulo:'Mailing Médicos — cumplimiento Gantt y cuidado IP (roja → verde) hasta traspaso PM',open:false,subs:[
+      {id:'c3a',titulo:'≥1 envío por UNE mensual (6 UNEs), IP recuperándose roja → amarilla/verde en ISPs con +120K envíos',peso:80,une_detalle:true,campos:[
+        {key:'envios_une',lbl:'UNEs con envío este mes (meta: 6 de 6)',meta:6,meta_lbl:'Meta: 6 UNEs con ≥1 envío',tipo:'puntual',inicio:1,
+         hint:'Ingresa cuántas de las 6 UNEs tuvieron al menos 1 envío este mes. Las 6 UNEs son: OFTA, CARDIO, INF/RES, NEU, GAS/GUN, OTC. Meta mínima: 6.'},
+        {key:'ip_estado',lbl:'Reputación IP de envíos',meta:4,meta_lbl:'Meta: Buena (4). Escala: 1=Pésima 2=Mala 3=Normal 4=Buena',tipo:'select',inicio:1,
+         opciones:['Pésima','Mala','Normal','Buena'],
+         hint:'Selecciona el estado actual de la reputación IP en los ISPs con más de 120K envíos.'}]},
+            {id:'c3b',titulo:'Alineación 360° UNEs principales ≥90% — OFTA, CARDIO, INF/RES, NEU',peso:10,campos:[
+        {key:'alin_ofta',lbl:'OFTA',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:1,target:90,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con OFTA este mes.'},
+        {key:'alin_cardio',lbl:'CARDIO',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:1,target:90,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con CARDIO este mes.'},
+        {key:'alin_inf',lbl:'INF/RES',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:1,target:90,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con INF/RES este mes.'},
+        {key:'alin_neu',lbl:'NEU',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:1,target:90,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con NEU este mes.'}]},
+      {id:'c3c',titulo:'Alineación 360° UNEs secundarias ≥80% — GAS, GUN, OTC',peso:10,campos:[
+        {key:'alin_gas',lbl:'GAS',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:1,target:80,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con Gastroenterología este mes.'},
+        {key:'alin_gun',lbl:'GUN',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:1,target:80,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con Ginecología/Urología este mes.'},
+        {key:'alin_otc',lbl:'OTC',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:1,target:80,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con OTC este mes.'}]}
+    ]},
+    {id:'c4',num:4,titulo:'Medición 100% + recomendaciones growth al 80% de objetivos del equipo digital 2026',open:false,subs:[
+      {id:'c4a',titulo:'4° status del mes: % cumplimiento de proyectos + recomendaciones growth para 80% de objetivos (sinergia equipo)',peso:100,rec_equipo:true,campos:[
+        {key:'objetivos_medidos',lbl:'Objetivos medidos (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'puntual',inicio:1},
+        {key:'objetivos_con_insights',lbl:'Objetivos con insights y recomendaciones (%)',meta:80,meta_lbl:'Meta: 80% con insights',tipo:'puntual',inicio:1},
+        {key:'proyectos_nuevos',lbl:'Proyectos nuevos de automatización/innovación (sobrecumplimiento)',meta:1,meta_lbl:'Meta: ≥1 = sobrecumplimiento',tipo:'acum',inicio:1}]}
+    ]},
+    {id:'c5',num:5,titulo:'Arquitectura — UATs, migración, Tags + Looker para toma de decisiones',open:false,subs:[
+      {id:'c5a',titulo:'Recibir UATs de TI y dar feedback ≥90% para aprobación de migración con validación jefatura y comercial',peso:25,campos:[
+        {key:'uat_feedback',lbl:'Feedback entregado a TI (%)',meta:90,meta_lbl:'Meta: ≥90%',tipo:'acum',inicio:1}]},
+      {id:'c5b',titulo:'Apoyo migración nueva arquitectura digital con análisis de data para toma de decisiones, aprobado por jefatura',peso:25,campos:[
+        {key:'migracion_apoyo',lbl:'Avance apoyo migración (%)',meta:100,meta_lbl:'Meta: completado',tipo:'acum',inicio:1}]},
+      {id:'c5c',titulo:'Tags y eventos conectados a Looker con insights UX mensuales para web migrada al nuevo CMS (prioridad Chile)',peso:50,campos:[
+        {key:'tags_conectados',lbl:'Tags conectados a Looker (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'acum',inicio:1},
+        {key:'insights_ux',lbl:'Insights UX estratégicos entregados este mes',meta:1,meta_lbl:'Meta: ≥1 mensual',tipo:'puntual',inicio:1}]}
+    ]}
+  ]},
+
+  dani:{nombre:'Dani',objetivos:[
+    {id:'d1',num:1,titulo:'Tráfico orgánico Bienestar SAVAL +7%',open:true,subs:[
+      {id:'d1a',titulo:'Incrementar 7% tráfico orgánico (base: 129.698 usuarios / 158.139 sesiones 2025)',peso:50,campos:[
+        {key:'usuarios',lbl:'Usuarios acumulados',meta:138777,meta_lbl:'Meta: 138.777',tipo:'acum',inicio:1},
+        {key:'sesiones',lbl:'Sesiones acumuladas',meta:169209,meta_lbl:'Meta: 169.209',tipo:'acum',inicio:1}]},
+      {id:'d1b',titulo:'SEO: 4 artículos nuevos + 1 actualizado mensual',peso:50,campos:[
+        {key:'art_nuevos',lbl:'Artículos nuevos este mes',meta:4,meta_lbl:'Meta: 4',tipo:'puntual',inicio:1},
+        {key:'art_actualizado',lbl:'Artículo actualizado',meta:1,meta_lbl:'Meta: 1',tipo:'puntual',inicio:1}]}
+    ]},
+    {id:'d2',num:2,titulo:'AWON Bienestar SAVAL — cuenta unificada, CPC/CTR +10%, tráfico +15%',open:false,subs:[
+      {id:'d2a',titulo:'Consolidar cuenta unificada AWON',peso:25,campos:[
+        {key:'consolidado',lbl:'Consolidación (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'acum',inicio:1}]},
+      {id:'d2b',titulo:'CPC/CTR Google +10% y performance Meta +10% por Q',peso:40,campos:[
+        {key:'cpc_mejora',lbl:'Mejora CPC Google (%)',meta:10,meta_lbl:'Meta: 10%',tipo:'puntual',inicio:1},
+        {key:'ctr_mejora',lbl:'Mejora CTR Google (%)',meta:10,meta_lbl:'Meta: 10%',tipo:'puntual',inicio:1},
+        {key:'meta_mejora',lbl:'Mejora Meta (%)',meta:10,meta_lbl:'Meta: 10%',tipo:'puntual',inicio:1}]},
+      {id:'d2c',titulo:'Crecimiento tráfico pauta +15%, permanencia ≥2 min',peso:35,campos:[
+        {key:'trafico_crecimiento',lbl:'Crecimiento tráfico pauta (%)',meta:15,meta_lbl:'Meta: 15%',tipo:'acum',inicio:1},
+        {key:'permanencia',lbl:'Permanencia promedio (seg)',meta:120,meta_lbl:'Meta: 120 seg',tipo:'puntual',inicio:1}]}
+    ]},
+    {id:'d3',num:3,titulo:'Visibilidad farmacias — 15 productos/mes, digital shelf +8%',open:false,subs:[
+      {id:'d3a',titulo:'KWs y descripciones de 15 productos/mes, digital shelf +8%',peso:100,campos:[
+        {key:'productos_mes',lbl:'Productos optimizados este mes',meta:15,meta_lbl:'Meta: 15',tipo:'puntual',inicio:1},
+        {key:'shelf_acum',lbl:'Mejora digital shelf acumulada (%)',meta:8,meta_lbl:'Meta: 8%',tipo:'acum',inicio:1}]}
+    ]},
+    {id:'d4',num:4,titulo:'SFMC Mailing Pacientes — IP verde, OR ≥20%, CTOR ≥8%',open:false,subs:[
+      {id:'d4a',titulo:'Mantener reputación IP verde',peso:30,campos:[
+        {key:'ip_verde',lbl:'IP verde (100=Sí)',meta:100,meta_lbl:'Meta: verde',tipo:'puntual',inicio:1}]},
+      {id:'d4b',titulo:'OR promedio ≥20% y CTOR ≥8%',peso:50,campos:[
+        {key:'or',lbl:'Open Rate promedio (%)',meta:20,meta_lbl:'Meta: 20%',tipo:'puntual',inicio:1},
+        {key:'ctor',lbl:'Click to Open Rate (%)',meta:8,meta_lbl:'Meta: 8%',tipo:'puntual',inicio:1}]},
+      {id:'d4c',titulo:'Alineación 360° UNEs principales ≥90% — OFTA, CARDIO, INF/RES, NEU',peso:10,campos:[
+        {key:'alin_ofta',lbl:'OFTA',meta:1,meta_lbl:'Meta: ≥1 envío alineado',tipo:'alin_pct',inicio:1,target:90,
+         hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con OFTA este mes.'},
+        {key:'alin_cardio',lbl:'CARDIO',meta:1,meta_lbl:'Meta: ≥1 envío alineado',tipo:'alin_pct',inicio:1,target:90,
+         hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con CARDIO este mes.'},
+        {key:'alin_inf',lbl:'INF/RES',meta:1,meta_lbl:'Meta: ≥1 envío alineado',tipo:'alin_pct',inicio:1,target:90,
+         hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con INF/RES este mes.'},
+        {key:'alin_neu',lbl:'NEU',meta:1,meta_lbl:'Meta: ≥1 envío alineado',tipo:'alin_pct',inicio:1,target:90,
+         hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con NEU este mes.'}]},
+      {id:'d4d',titulo:'Alineación 360° UNEs secundarias ≥80% — GAS, GUN, OTC',peso:10,campos:[
+        {key:'alin_gas',lbl:'GAS',meta:1,meta_lbl:'Meta: ≥1 envío alineado',tipo:'alin_pct',inicio:1,target:80,
+         hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con Gastroenterología este mes.'},
+        {key:'alin_gun',lbl:'GUN',meta:1,meta_lbl:'Meta: ≥1 envío alineado',tipo:'alin_pct',inicio:1,target:80,
+         hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con Ginecología/Urología este mes.'},
+        {key:'alin_otc',lbl:'OTC',meta:1,meta_lbl:'Meta: ≥1 envío alineado',tipo:'alin_pct',inicio:1,target:80,
+         hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con OTC este mes.'}]}
+    ]},
+    {id:'d5',num:5,titulo:'Campaña BS — PMO 2026, tráfico +25%, 5.000 leads en SF',open:false,subs:[
+      {id:'d5a',titulo:'PMO campaña: reporte mensual con 2 insights por UNE antes del día 15',peso:60,campos:[
+        {key:'reporte',lbl:'Reporte entregado antes día 15 (100=Sí)',meta:100,meta_lbl:'Meta: entregar',tipo:'entregable',inicio:6}]},
+      {id:'d5b',titulo:'Crecimiento 25% tráfico de calidad y 5.000 leads en SF a dic 2026',peso:40,campos:[
+        {key:'trafico_calidad',lbl:'Crecimiento tráfico calidad (%)',meta:25,meta_lbl:'Meta: 25%',tipo:'acum',inicio:6},
+        {key:'leads',lbl:'Leads acumulados en SF',meta:5000,meta_lbl:'Meta: 5.000',tipo:'acum',inicio:6}]}
+    ]}
+  ]},
+
+  tati:{nombre:'Tati',objetivos:[
+    {id:'t1',num:1,titulo:'Puentes Digital News e insights pacientes + Puentes médicos Ecuador y Costa Rica — estrategia BBDD',open:true,subs:[
+      {id:'t1a',titulo:'Estrategia integral de base de mailings médicos Ecuador (BBDD, fuerza de ventas, omnicanal, guideline Salesforce) antes del 31 dic 2026',peso:20,campos:[
+        {key:'bbdd_ecu',lbl:'Avance estrategia BBDD médicos Ecuador (%)',meta:100,meta_lbl:'Meta: 100% antes del 31 dic 2026',tipo:'acum',inicio:1,
+         hint:'Ingresa el % de avance acumulado de la estrategia: análisis de base local, fuerza de ventas, potencial omnicanal, lineamientos con comercial/BI y guideline Salesforce.'}]},
+      {id:'t1b',titulo:'Estrategia integral de base de mailings médicos Costa Rica (BBDD, fuerza de ventas, omnicanal, guideline Salesforce) antes del 31 dic 2026',peso:20,campos:[
+        {key:'bbdd_cr',lbl:'Avance estrategia BBDD médicos Costa Rica (%)',meta:100,meta_lbl:'Meta: 100% antes del 31 dic 2026',tipo:'acum',inicio:1,
+         hint:'Ingresa el % de avance acumulado de la estrategia: análisis de base local, fuerza de ventas, potencial omnicanal, lineamientos con comercial/BI y guideline Salesforce.'}]},
+      {id:'t1c',titulo:'Digital News Ecuador con insights por UNE + guideline inicial comunicación pacientes (impacto local) antes de dic 2026',peso:30,campos:[
+        {key:'dn_ecu',lbl:'Avance Digital News Ecuador (%)',meta:100,meta_lbl:'Meta: 100% antes de dic 2026',tipo:'acum',inicio:1,
+         hint:'Ingresa el % de avance: consolidación de insights por UNE, selección de materiales clave y guideline inicial de comunicación a pacientes.'}]},
+      {id:'t1d',titulo:'Digital News Costa Rica con insights por UNE + guideline inicial comunicación pacientes (impacto local) antes de dic 2026',peso:30,campos:[
+        {key:'dn_cr',lbl:'Avance Digital News Costa Rica (%)',meta:100,meta_lbl:'Meta: 100% antes de dic 2026',tipo:'acum',inicio:1,
+         hint:'Ingresa el % de avance: consolidación de insights por UNE, selección de materiales clave y guideline inicial de comunicación a pacientes.'}]}
+    ]},
+    {id:'t2',num:2,titulo:'Campaña y performance Bienestar SAVAL — estrategia comercial, plan de medios, presupuesto y resultados',open:false,subs:[
+      {id:'t2a',titulo:'Diseñar campaña BS 2026 Chile: estrategia comercial con UNEs y PMs, análisis competitivo, manejo de presupuesto y plan de medios',peso:60,campos:[
+        {key:'diseno_campana',lbl:'Avance diseño y gestión de campaña (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'acum',inicio:1,
+         hint:'Ingresa el % de avance de la estrategia comercial, alineación con UNEs/PMs, análisis de mercado, presupuesto y optimización del plan de medios.'}]},
+      {id:'t2b',titulo:'Crecimiento 25% tráfico de calidad manteniendo permanencia y 5.000 nuevos leads segmentados a dic 2026',peso:40,campos:[
+        {key:'trafico_calidad',lbl:'Crecimiento tráfico calidad (%)',meta:25,meta_lbl:'Meta: 25%',tipo:'acum',inicio:1},
+        {key:'leads',lbl:'Leads acumulados segmentados',meta:5000,meta_lbl:'Meta: 5.000',tipo:'acum',inicio:1}]}
+    ]},
+    {id:'t3',num:3,titulo:'Arquitectura — validación y explicación a TI de necesidades estratégicas y funcionales desde comercial',open:false,subs:[
+      {id:'t3a',titulo:'Validar y explicar a TI las necesidades estratégicas y funcionales del mapa de nueva arquitectura digital desde comercial',peso:100,campos:[
+        {key:'arquitectura_avance',lbl:'Avance validación con TI (%)',meta:100,meta_lbl:'Meta: 100%, según avance de TI',tipo:'acum',inicio:1,
+         hint:'Ingresa el % de avance evaluado según el progreso que TI tenga como líder del desarrollo del proyecto.'}]}
+    ]},
+    {id:'t4',num:4,titulo:'Salesforce — negociación corporativa y consentimiento médico legal Chile antes de dic 2026',open:false,subs:[
+      {id:'t4a',titulo:'Negociación contrato corporativo Salesforce según necesidades y proyección con pacientes/médicos área comercial Chile',peso:25,campos:[
+        {key:'negociacion_sf',lbl:'Avance negociación contrato (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'acum',inicio:1}]},
+      {id:'t4b',titulo:'Estrategia B2B y B2C Chile con SFMC, Advanced Intelligence Report y centralización BBDD médicos (SAVALnet, EMC, webinars, BS) alineada con CRM BI',peso:25,campos:[
+        {key:'estrategia_b2b_b2c',lbl:'Avance estrategia y centralización BBDD (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'acum',inicio:1}]},
+      {id:'t4c',titulo:'Consentimiento médico legal en Chile para fuerza de ventas y médicos digitales antes de dic 2026',peso:50,campos:[
+        {key:'consentimiento_legal',lbl:'Avance consentimiento médico legal (%)',meta:100,meta_lbl:'Meta: 100% antes de dic 2026',tipo:'acum',inicio:1}]}
+    ]},
+    {id:'t5',num:5,titulo:'Mejoramiento Clima Subgerencia Desarrollo de Marca',open:false,subs:[
+      {id:'t5a',titulo:'Mejoramiento del clima laboral de la Subgerencia Desarrollo de Marca',peso:100,campos:[
+        {key:'clima_subgerencia',lbl:'Avance mejoramiento de clima (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'acum',inicio:1}]}
+    ]}
+  ]},
+
+  juan:{nombre:'Juan',objetivos:[
+    {id:'j1',num:1,titulo:'Cobertura HCPs — 8K médicos + 2K QFs en Salesforce a dic 2026',open:true,subs:[
+      {id:'j1a',titulo:'8.000 médicos y 2.000 QFs ingresados en SF a dic 2026',peso:100,campos:[
+        {key:'medicos_sf',lbl:'Médicos ingresados en SF',meta:8000,meta_lbl:'Meta: 8.000',tipo:'acum',inicio:1},
+        {key:'qf_sf',lbl:'QFs ingresados en SF',meta:2000,meta_lbl:'Meta: 2.000',tipo:'acum',inicio:1}]}
+    ]},
+    {id:'j2',num:2,titulo:'SFMC Mailing Médicos — IP verde, OR ≥50%, CTOR ≥30%, 2 journeys/UNE',open:false,subs:[
+      {id:'j2a',titulo:'IP médicos en verde en Salesforce',peso:20,campos:[
+        {key:'ip_verde',lbl:'IP médicos verde (100=Sí)',meta:100,meta_lbl:'Meta: verde',tipo:'puntual',inicio:1}]},
+      {id:'j2b',titulo:'2 journeys complejos por UNE con 3 envíos de segmentación',peso:40,campos:[
+        {key:'journeys_une',lbl:'Journeys complejos completados',meta:10,meta_lbl:'Meta: 2 x UNE',tipo:'acum',inicio:1}]},
+      {id:'j2c',titulo:'OR promedio ≥50% y CTOR ≥30%',peso:40,campos:[
+        {key:'or',lbl:'Open Rate promedio (%)',meta:50,meta_lbl:'Meta: 50%',tipo:'puntual',inicio:1},
+        {key:'ctor',lbl:'Click to Open Rate (%)',meta:30,meta_lbl:'Meta: 30%',tipo:'puntual',inicio:1}]}
+    ]},
+    {id:'j3',num:3,titulo:'Centralización BBDD médicos — SAVALnet, EMC, Marketing y Digital en SF',open:false,subs:[
+      {id:'j3a',titulo:'BBDD unificada en SF con flujos cross comercial y DM a dic 2026',peso:100,campos:[
+        {key:'bbdd_centralizada',lbl:'% BBDD centralizada en SF',meta:100,meta_lbl:'Meta: 100%',tipo:'acum',inicio:1},
+        {key:'flujos_nuevos',lbl:'Flujos nuevos cross implementados',meta:3,meta_lbl:'Meta: ≥3 flujos',tipo:'acum',inicio:1}]}
+    ]},
+    {id:'j4',num:4,titulo:'Consentimiento médico — 2ª etapa, centro de preferencias omnicanal',open:false,subs:[
+      {id:'j4a',titulo:'Alinear todas las áreas SAVAL y Embajadores Digitales para continuidad omnicanal',peso:100,campos:[
+        {key:'areas_alineadas',lbl:'Áreas alineadas (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'acum',inicio:1},
+        {key:'embajadores_ok',lbl:'Embajadores incorporados (100=Sí)',meta:100,meta_lbl:'Meta: todos',tipo:'acum',inicio:1}]}
+    ]},
+    {id:'j5',num:5,titulo:'Apoyo puentes — benchmark SAVAL y data unificada ECU/CR',open:false,subs:[
+      {id:'j5a',titulo:'Prospección con data unificada ECU y CR de visita y canales digitales',peso:100,campos:[
+        {key:'medicos_prospectados',lbl:'Médicos prospectados desde benchmark',meta:500,meta_lbl:'Meta: a definir',tipo:'acum',inicio:1},
+        {key:'data_unificada',lbl:'Data ECU/CR unificada (100=Sí)',meta:100,meta_lbl:'Meta: unificada',tipo:'acum',inicio:1}]}
+    ]}
+  ]}
+};
+
+function osk(p,m,id,k){return`obj_${p}_m${m}_${id}_${k}`}
+function getOV(p,m,id,k){return cloudGet(osk(p,m,id,k));}
+function setOV(p,m,id,k,v){cloudSet(osk(p,m,id,k),v); showToast();}
+function saveRec(p,m,id,k,v){cloudSet(osk(p,m,id,k),v);}
+function toggleEntregable(p,m,subid,key){
+  const done=getOV(p,m,subid,key+'_done')==='1';
+  setOV(p,m,subid,key+'_done',done?'0':'1');
+  setOV(p,m,subid,key,done?'0':'100');
+  if(!done){
+    // auto-poner fecha hoy si no tiene
+    const fechaActual=getOV(p,m,subid,key+'_fecha');
+    if(!fechaActual) setOV(p,m,subid,key+'_fecha',new Date().toISOString().slice(0,10));
+  }
+  renderObjetivos();
+}
+function getONota(p,m,sid){return cloudGet(`onota_${p}_m${m}_${sid}`);}
+function setONota(p,m,sid,v){cloudSet(`onota_${p}_m${m}_${sid}`,v); showToast();}
+
+/* ── Meta esperada proporcional ──
+   acum: la meta se distribuye linealmente entre inicio y dic (mes 12)
+   puntual: la meta es fija cada mes, se compara directamente
+   mesesDisp = meses del período (ej campaña BS: 6→12 = 7 meses)
+   esperadoAlMes m = meta * (m - inicio + 1) / mesesDisp
+*/
+function metaEsperada(campo, m){
+  const inicio = campo.inicio || 1;
+  if(m < inicio) return null; // aún no aplica
+  if(campo.tipo === 'acum'){
+    const mesesDisp = 12 - inicio + 1;
+    const mesesTransc = m - inicio + 1;
+    return campo.meta * (mesesTransc / mesesDisp);
+  }
+  return campo.meta; // puntual: meta fija
+}
+
+/* Semáforo de un campo individual considerando:
+   1. Si el valor supera la meta → sobrecumplimiento (verde+)
+   2. Si el valor ≥ 90% de la meta esperada al mes actual → verde
+   3. Si ≥ 70% → amarillo
+   4. < 70% → rojo
+*/
+function semCampo(c, v, m){
+  if(c.tipo==='entregable'){
+    const done=getOV(currentPerson,m,c._subid||'',c.key+'_done')==='1';
+    if(done) return 'verde';
+    if(m < (c.inicio||1)) return 'gris';
+    return 'gris';
+  }
+  if(c.tipo==='select'){
+    if(isNaN(v)||v===0) return 'gris';
+    if(v>=4) return 'verde';
+    if(v>=3) return 'amarillo';
+    if(v>=1) return 'amarillo';
+    return 'gris';
+  }
+  if(c.tipo==='alin_pct'){
+    // Campo binario 0/1, semáforo individual
+    if(isNaN(v)) return 'gris';
+    return v>=1 ? 'verde' : 'rojo';
+  }
+  const esperado = metaEsperada(c, m);
+  if(esperado === null) return 'gris';
+  if(isNaN(v) || v === 0) return 'gris';
+  if(v >= c.meta) return 'sobre';
+  const ratio = v / esperado;
+  if(ratio >= 0.9) return 'verde';
+  if(ratio >= 0.7) return 'amarillo';
+  return 'rojo';
+}
+
+function semSub(sub,p,m){
+  let scores=[];
+  sub.campos.forEach(c=>{
+    if(c.tipo==='select') return;
+    if(c.tipo==='alin_pct') return; // se evalúa como grupo abajo
+    const v=parseFloat(getOV(p,m,sub.id,c.key));
+    scores.push(semCampo(c,v,m));
+  });
+  // Evaluar grupo alin_pct como % de cumplimiento vs target
+  const alinCampos=sub.campos.filter(c=>c.tipo==='alin_pct');
+  if(alinCampos.length>0){
+    const target=alinCampos[0].target||90;
+    const cumplidos=alinCampos.filter(c=>{
+      const v=parseFloat(getOV(p,m,sub.id,c.key));
+      return !isNaN(v)&&v>=1;
+    }).length;
+    const pctReal=Math.round(cumplidos/alinCampos.length*100);
+    if(pctReal>=target) scores.push('verde');
+    else if(pctReal>=(target-15)) scores.push('amarillo');
+    else scores.push('rojo');
+  }
+  if(!scores.length||scores.every(s=>s==='gris'))return'gris';
+  if(scores.some(s=>s==='rojo'))return'rojo';
+  if(scores.some(s=>s==='amarillo'))return'amarillo';
+  if(scores.every(s=>s==='sobre'||s==='verde'||s==='gris'))return'verde';
+  return'verde';
+}
+function semObj(obj,p,m){
+  const ss=obj.subs.map(s=>semSub(s,p,m));
+  if(ss.every(s=>s==='gris'))return'gris';
+  if(ss.some(s=>s==='rojo'))return'rojo';
+  if(ss.some(s=>s==='amarillo'))return'amarillo';
+  if(ss.every(s=>s==='sobre'||s==='gris'))return'sobre';
+  return'verde';
+}
+
+/* % de avance acumulado desde currentMonthFrom hasta m */
+function avancePct(sub,p,m){
+  const mFrom=currentMonthFrom||1;
+  let vals=[];
+  sub.campos.forEach(c=>{
+    if(c.tipo==='select') return; // IP es solo informativo, no pondera
+    if(c.tipo==='entregable'){
+      const inicio=Math.max(c.inicio||1,mFrom);
+      const mesesTransc=Math.max(0,m-inicio+1);
+      if(mesesTransc===0){vals.push(0);return;}
+      let completados=0;
+      for(let mi=inicio;mi<=m;mi++){
+        if(getOV(p,mi,sub.id,c.key+'_done')==='1') completados++;
+      }
+      vals.push(Math.round(completados/mesesTransc*100));
+    } else if(c.tipo==='alin_pct'){
+      // no suma aquí, se calcula después como grupo
+    } else {
+      if(c.tipo==='acum'){
+        // Acumulativo: tomar el valor más reciente dentro del rango
+        let bestV=0;
+        for(let mi=mFrom;mi<=m;mi++){
+          const v=parseFloat(getOV(p,mi,sub.id,c.key));
+          if(!isNaN(v)&&v>0) bestV=Math.max(bestV,v);
+        }
+        const esp=metaEsperada(c,m);
+        if(bestV>0&&esp&&esp>0) vals.push(Math.min(120,Math.round(bestV/esp*100)));
+      } else {
+        // Puntual: promediar los meses del rango que tienen dato
+        let puntuales=[];
+        for(let mi=mFrom;mi<=m;mi++){
+          const v=parseFloat(getOV(p,mi,sub.id,c.key));
+          const esp=metaEsperada(c,mi);
+          if(!isNaN(v)&&v>0&&esp&&esp>0) puntuales.push(Math.min(120,Math.round(v/esp*100)));
+        }
+        if(puntuales.length>0) vals.push(Math.round(puntuales.reduce((a,b)=>a+b)/puntuales.length));
+      }
+    }
+  });
+  // Calcular % alineación para sub-objetivos con campos alin_pct
+  const alinCampos=sub.campos.filter(c=>c.tipo==='alin_pct');
+  if(alinCampos.length>0){
+    const target=alinCampos[0].target||90;
+    const cumplidos=alinCampos.filter(c=>{
+      const v=parseFloat(getOV(p,m,sub.id,c.key));
+      return !isNaN(v)&&v>=1;
+    }).length;
+    let pctReal=Math.round(cumplidos/alinCampos.length*100);
+    // Si el sub tiene SOLO campos alin_pct, devolver pctReal directamente
+    // para que la barra muestre ej: 1/4 = 25%, 3/4 = 75%, 4/4 = 100%
+    // Para rango: % de meses donde se cumplió cada UNE dentro del rango
+    if(mFrom<m){
+      // Calcular promedio de cumplimiento en el rango
+      let cumMeses=0, totalMeses=0;
+      for(let mi=mFrom;mi<=m;mi++){
+        const cumMes=alinCampos.filter(c=>{
+          const v=parseFloat(getOV(p,mi,sub.id,c.key));
+          return !isNaN(v)&&v>=1;
+        }).length;
+        if(cumMes>0||getOV(p,mi,sub.id,alinCampos[0].key)!==''){
+          cumMeses+=Math.round(cumMes/alinCampos.length*100);
+          totalMeses++;
+        }
+      }
+      if(totalMeses>0) pctReal=Math.round(cumMeses/totalMeses);
+    }
+    const soloAlin=sub.campos.every(c=>c.tipo==='alin_pct'||c.tipo==='select');
+    if(soloAlin) return pctReal;
+    vals.push(Math.min(120,Math.round(pctReal/target*100)));
+  }
+  return vals.length?Math.round(vals.reduce((a,b)=>a+b)/vals.length):0;
+}
+
+/* Texto de alerta enriquecido con datos concretos */
+function alertMsg(sub,p,m,mes){
+  const sem=semSub(sub,p,m);
+  if(sem==='gris')return{t:'',m:''};
+  if(sem==='sobre'){
+    // Mensaje limpio: listar qué UNEs/campos se cumplieron y cuáles no
+    let cumplidos=[], pendientes=[];
+    sub.campos.forEach(c=>{
+      if(c.tipo==='entregable'||c.tipo==='select') return;
+      const v=parseFloat(getOV(p,m,sub.id,c.key));
+      const lbl=c.lbl.replace(/— .*/,'').replace(/\(.*\)/,'').trim();
+      if(!isNaN(v)&&v>=c.meta) cumplidos.push(lbl);
+      else pendientes.push(lbl);
+    });
+    // Si son campos binarios tipo alineación (meta=1), hacer mensaje de UNEs
+    const esBinario=sub.campos.every(c=>c.tipo==='alin_pct');
+    if(esBinario){
+      const target=sub.campos[0]?.target||90;
+      const pctReal=Math.round(cumplidos.length/sub.campos.length*100);
+      const msg=pendientes.length===0
+        ? `✓ Alineación ${pctReal}% — target de ${target}% superado en todas las UNEs.`
+        : `✓ Alineación ${pctReal}% vs target ${target}%. Cumplido: ${cumplidos.join(', ')}. No cumplido: ${pendientes.join(', ')}.`;
+      return{t:'sobre',m:msg};
+    }
+    return{t:'sobre',m:`✓ Meta alcanzada en ${mes}. ${cumplidos.length} de ${sub.campos.length} campos en meta.`};
+  }
+  // Calcular brecha para el mensaje
+  let brechas=[];
+  sub.campos.forEach(c=>{
+    if(c.tipo==='select') return; // IP no genera brecha
+    const v=parseFloat(getOV(p,m,sub.id,c.key));
+    const esp=metaEsperada(c,m);
+    if(!isNaN(v)&&esp&&esp>0){
+      const diff=Math.round(esp-v);
+      if(diff>0)brechas.push(`${c.lbl}: faltan ${diff.toLocaleString('es-CL')} para ir en línea`);
+    }
+  });
+  // Mensaje específico para IP reputación
+  const hasSelect=sub.campos.some(c=>c.tipo==='select');
+  if(hasSelect){
+    const ipCampo=sub.campos.find(c=>c.tipo==='select');
+    if(ipCampo){
+      const ipV=parseInt(getOV(p,m,sub.id,ipCampo.key))||0;
+      const ipLbl=['','Pésima','Mala','Normal','Buena'][ipV]||'Sin datos';
+      const ipTrend=ipV>=4?'Meta alcanzada.':ipV>=3?'En progreso hacia Buena.':ipV>=1?'Estado actual registrado. Continuar mejorando.':'Sin datos aún.';
+      if(sem==='verde') return{t:'verde',m:`✓ Reputación IP: ${ipLbl}. ${ipTrend}`};
+      return{t:'amarillo',m:`ℹ Reputación IP actual: ${ipLbl}. ${ipTrend}`};
+    }
+  }
+  const brechaStr=brechas.length?` — ${brechas[0]}`:'';
+  // Mensaje especial para sub-objetivos de alineación (campos binarios 0/1)
+  const alinCamposMsg=sub.campos.filter(c=>c.tipo==='alin_pct');
+  if(alinCamposMsg.length>0){
+    const target=alinCamposMsg[0].target||90;
+    let cumplidos=[], pendientes=[];
+    alinCamposMsg.forEach(c=>{
+      const v=parseFloat(getOV(p,m,sub.id,c.key));
+      if(!isNaN(v)&&v>=1) cumplidos.push(c.lbl);
+      else pendientes.push(c.lbl);
+    });
+    const pctReal=Math.round(cumplidos.length/alinCamposMsg.length*100);
+    const cumplioTarget=pctReal>=target;
+    const cumlidosTxt=cumplidos.length?`Cumplido: ${cumplidos.join(', ')}.`:'';
+    const pendientesTxt=pendientes.length?` No cumplido: ${pendientes.join(', ')}.`:'';
+    if(cumplioTarget){
+      return{t:'verde',m:`✓ Alineación ${pctReal}% — sobre el target de ${target}%. ${cumlidosTxt}${pendientesTxt}`};
+    } else {
+      const tipo=pctReal>=(target-15)?'amarillo':'rojo';
+      const pref=tipo==='amarillo'?'⚠':'✕';
+      return{t:tipo,m:`${pref} Alineación ${pctReal}% — bajo el target de ${target}%.${pendientesTxt} ${cumlidosTxt}`};
+    }
+  }
+  if(sem==='verde')return{t:'verde',m:`✓ En línea con la meta proporcional para ${mes}.`};
+  if(sem==='amarillo')return{t:'amarillo',m:`⚠ Rezagado vs lo esperado en ${mes}${brechaStr}. Revisar acciones.`};
+  return{t:'rojo',m:`✕ En riesgo${brechaStr}. Acción inmediata requerida.`};
+}
+
+/* ── CUMPLIMIENTO ANUAL: helpers ── */
+// Mes actual del año → % tiempo transcurrido (mes 1 = 8.3%, mes 12 = 100%)
+function tiempoAnual(m){return Math.round(m/12*100)}
+
+// Calcula avance ANUAL acumulado de un sub-objetivo (suma todos los meses hasta currentMonth)
+function avanceAnualPct(sub,p){
+  let vals=[];
+  sub.campos.forEach(c=>{
+    if(c.tipo==='select') return; // IP solo informativo, no pondera anual
+    if(c.tipo==='entregable'){
+      const inicio=c.inicio||1;
+      const mesesTotal=12-inicio+1;
+      let completados=0;
+      for(let m=inicio;m<=12;m++){
+        if(getOV(p,m,sub.id,c.key+'_done')==='1') completados++;
+      }
+      vals.push(Math.round(completados/mesesTotal*100));
+    } else {
+      let bestV=0;
+      for(let m=1;m<=currentMonth;m++){
+        const v=parseFloat(getOV(p,m,sub.id,c.key));
+        if(!isNaN(v)&&v>0) bestV=Math.max(bestV,v/c.meta*100);
+      }
+      vals.push(Math.min(100,Math.round(bestV)));
+    }
+  });
+  return vals.length?Math.round(vals.reduce((a,b)=>a+b)/vals.length):0;
+}
+
+// Calcula avance anual promedio de un objetivo (promedio de sus sub-objetivos ponderado)
+function avanceAnualObj(obj,p){
+  let total=0,peso=0;
+  obj.subs.forEach(s=>{
+    const a=avanceAnualPct(s,p);
+    total+=a*(s.peso||100);
+    peso+=(s.peso||100);
+  });
+  return peso>0?Math.round(total/peso):0;
+}
+
+// Semáforo anual: compara avance real vs tiempo transcurrido
+// Rojo: real < tiempo-15pp | Amarillo: real < tiempo-5pp | Verde: cerca o sobre
+function semAnual(avance,tiempo){
+  if(avance===0)return'gris';
+  if(avance>=105)return'sobre'; // sobrecumplimiento anual
+  if(avance>=tiempo-5)return'verde';
+  if(avance>=tiempo-15)return'amarillo';
+  return'rojo';
+}
+
+function renderPerfilCard(pd,p){
+  const el=document.getElementById('perfil-card');
+  if(!pd||!pd.objetivos.length){el.innerHTML='';return;}
+  const tiempo=tiempoAnual(currentMonth);
+  const mes=MESES[currentMonth];
+
+  // Colores avatar por persona
+  const avatarColors={cesar:{bg:'#EEEDFE',text:'#3C3489'},dani:{bg:'#E1F5EE',text:'#085041'},tati:{bg:'#FAEEDA',text:'#633806'},juan:{bg:'#FAECE7',text:'#712B13'}};
+  const av=avatarColors[p]||{bg:'#F1EFE8',text:'#444'};
+  const initials=pd.nombre.slice(0,2).toUpperCase();
+
+  // Calcular cumplimiento global (promedio ponderado de todos los objetivos)
+  let sumAvance=0;
+  pd.objetivos.forEach(obj=>sumAvance+=avanceAnualObj(obj,p));
+  const globalPct=Math.round(sumAvance/pd.objetivos.length);
+  const globalSem=semAnual(globalPct,tiempo);
+  const globalColor=globalSem==='sobre'?'#534AB7':globalSem==='verde'?'#639922':globalSem==='amarillo'?'#EF9F27':globalSem==='rojo'?'#E24B4A':'#B4B2A9';
+
+  let objsHtml='';
+  pd.objetivos.forEach(obj=>{
+    const avance=avanceAnualObj(obj,p);
+    const sem=semAnual(avance,tiempo);
+    const color=sem==='sobre'?'#534AB7':sem==='verde'?'#639922':sem==='amarillo'?'#EF9F27':sem==='rojo'?'#E24B4A':'#B4B2A9';
+    const tagCl='oa-'+sem;
+    const tagTxt=sem==='sobre'?'Sobre meta':sem==='verde'?'En línea':sem==='amarillo'?'Rezagado':sem==='rojo'?'En riesgo':'Sin datos';
+    const gap=avance-tiempo;
+    const brechaStr=sem==='gris'?'Sin datos ingresados':
+      sem==='sobre'?`+${avance-100}pp sobre meta anual`:
+      gap>=0?`+${gap}pp vs ritmo esperado`:
+      `${gap}pp vs ritmo esperado · ${Math.abs(gap)}pp de brecha`;
+    const barW=Math.min(100,avance);
+    objsHtml+=`<div class="pobj-row">
+      <div class="pobj-top">
+        <div class="pobj-dot" style="background:${color}"></div>
+        <span class="pobj-num">${obj.num}.</span>
+        <span class="pobj-title" title="${obj.titulo}">${obj.titulo}</span>
+      </div>
+      <div class="pobj-right">
+        <div class="pobj-bar-bg">
+          <div class="pobj-bar-fill" style="width:${barW}%;background:${color}"></div>
+          <div class="pobj-marker" style="left:${Math.min(tiempo,98)}%"></div>
+        </div>
+        <span class="pobj-pct" style="color:${color}">${avance}%</span>
+        <span class="pobj-brecha">${brechaStr}</span>
+        <span class="pobj-tag ${tagCl}">${tagTxt}</span>
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML=`<div class="perfil-card">
+    <div class="perfil-top">
+      <div class="perfil-avatar" style="background:${av.bg};color:${av.text}">${initials}</div>
+      <div>
+        <div class="perfil-name">${pd.nombre}</div>
+        <div class="perfil-mes">${vistaMode==='acum'?'Acumulado Ene → '+MESES[currentMonth]:MESES[currentMonth]} ${new Date().getFullYear()} · Línea morada = ritmo esperado (${tiempo}%)</div>
+      </div>
+      <div class="perfil-global">
+        <div class="perfil-global-n" style="color:${globalColor}">${globalPct}%</div>
+        <div class="perfil-global-l">cumplimiento global</div>
+      </div>
+    </div>
+    <div class="perfil-grid">${objsHtml}</div>
+  </div>`;
+}
+
+function renderAnualPanel(pd,p){
+  const anualEl=document.getElementById('anual-panel');
+  if(!pd||!pd.objetivos.length){anualEl.innerHTML='';return;}
+  const tiempo=tiempoAnual(currentMonth);
+  let rowsHtml='';
+  pd.objetivos.forEach(obj=>{
+    const avance=avanceAnualObj(obj,p);
+    const sem=semAnual(avance,tiempo);
+    const dotColor=sem==='sobre'?'#534AB7':sem==='verde'?'#639922':sem==='amarillo'?'#EF9F27':sem==='rojo'?'#E24B4A':'#B4B2A9';
+    const barColor=sem==='sobre'?'#534AB7':sem==='verde'?'#639922':sem==='amarillo'?'#EF9F27':sem==='rojo'?'#E24B4A':'#B4B2A9';
+    const tagCl=`oa-${sem}`;
+    const tagTxt=sem==='sobre'?'🚀 Sobrecumplimiento':sem==='verde'?'En línea':sem==='amarillo'?'Rezagado':sem==='rojo'?'En riesgo':'Sin datos';
+    const gap=avance-tiempo;
+    const gapTxt=sem==='gris'?'':gap>=0?`+${gap}pp vs tiempo`:`${gap}pp vs tiempo`;
+    rowsHtml+=`<div class="obj-row">
+      <div class="obj-row-dot" style="background:${dotColor}"></div>
+      <span class="obj-row-name" title="${obj.titulo}">${obj.num}. ${obj.titulo}</span>
+      <div class="obj-row-bar-bg">
+        <div class="obj-row-bar" style="width:${avance}%;background:${barColor}"></div>
+        <div class="obj-row-marker" style="left:${tiempo}%"></div>
+      </div>
+      <span class="obj-row-pct" style="color:${dotColor}">${avance}%</span>
+      <span class="obj-row-tag ${tagCl}">${tagTxt}</span>
+      ${gapTxt?`<span style="font-size:10px;color:var(--text3);white-space:nowrap">${gapTxt}</span>`:''}
+    </div>`;
+  });
+  anualEl.innerHTML=`<div class="anual-panel">
+    <div class="anual-header">
+      <span class="anual-title">Cumplimiento anual — ${pd.nombre}</span>
+      <span class="anual-meta">Barra = avance real acumulado · Línea morada = ritmo esperado al mes de ${MESES[currentMonth]} (${tiempo}% del año) · Para estar "en línea" tu barra debe tocar o superar la línea morada</span>
+    </div>
+    <div class="tiempo-bar-wrap">
+      <div class="tiempo-bar-lbl"><span>Ene</span><span>Jun</span><span>Dic</span></div>
+      <div class="tiempo-bar-bg"><div class="tiempo-bar-fill" style="width:${tiempo}%"></div></div>
+    </div>
+    <div class="obj-rows">${rowsHtml}</div>
+  </div>`;
+}
+
+function renderObjetivos(){
+  const pd=objData[currentPerson];
+  const panel=document.getElementById('obj-panel');
+  const mes=MESES[currentMonth];
+  if(!pd||!pd.objetivos.length){
+    panel.innerHTML=`<div class="empty-person">Los objetivos de ${pd?pd.nombre:'esta persona'} aún no han sido cargados.</div>`;
+    document.getElementById('perfil-card').innerHTML='';
+    document.getElementById('anual-panel').innerHTML='';
+    ['s-total','s-verde','s-amarillo','s-rojo'].forEach(id=>document.getElementById(id).textContent=0);
+    return;
+  }
+  renderPerfilCard(pd,currentPerson);
+  renderAnualPanel(pd,currentPerson);
+  const tiempo=tiempoAnual(currentMonth);
+  let sv=0,sa=0,sr=0,html='';
+  pd.objetivos.forEach(obj=>{
+    const isOpen=openObjs[obj.id]!==undefined?openObjs[obj.id]:obj.open;
+    const sem=semObj(obj,currentPerson,currentMonth);
+    if(sem==='verde')sv++;else if(sem==='amarillo')sa++;else if(sem==='rojo')sr++;
+    // barra anual de este objetivo
+    const avanceAnual=avanceAnualObj(obj,currentPerson);
+    const semA=semAnual(avanceAnual,tiempo);
+    const barAnualColor=semA==='sobre'?'#534AB7':semA==='verde'?'#639922':semA==='amarillo'?'#EF9F27':semA==='rojo'?'#E24B4A':'#B4B2A9';
+    const tagAnualCl=`oa-${semA}`;
+    const tagAnualTxt=semA==='sobre'?'🚀 Sobrecumplimiento':semA==='verde'?'En línea':semA==='amarillo'?'Rezagado':semA==='rojo'?'En riesgo':'Sin datos';
+    let subsHtml='';
+    obj.subs.forEach(sub=>{
+      const ss=semSub(sub,currentPerson,currentMonth);
+      const pct=avancePct(sub,currentPerson,currentMonth);
+      const al=alertMsg(sub,currentPerson,currentMonth,mes);
+      const nota=getONota(currentPerson,currentMonth,sub.id);
+      const fillCl=ss==='sobre'?'fill-sobre':ss==='verde'?'fill-verde':ss==='amarillo'?'fill-amarillo':ss==='rojo'?'fill-rojo':'fill-gris';
+      let camposHtml='<div class="metrics-grid">';
+      let hasEntregable=false;
+      let entregableHtml='';
+      let uneDetalleHtml='';
+      let recEquipoHtml='';
+      if(sub.rec_equipo){
+        const equipo=[
+          {key:'rec_dani', nombre:'Dani', bg:'#E1F5EE', color:'#085041'},
+          {key:'rec_tati', nombre:'Tati', bg:'#FAEEDA', color:'#633806'},
+          {key:'rec_juan', nombre:'Juan', bg:'#FAECE7', color:'#712B13'},
+        ];
+        const cardsHtml=equipo.map(e=>{
+          const val=getOV(currentPerson,currentMonth,sub.id,e.key)||'';
+          return `<div class="rec-card">
+            <div class="rec-card-header">
+              <div class="rec-avatar" style="background:${e.bg};color:${e.color}">${e.nombre.slice(0,2).toUpperCase()}</div>
+              <span class="rec-name">${e.nombre}</span>
+            </div>
+            <textarea class="rec-textarea" placeholder="Recomendación para ${e.nombre} — ${MESES[currentMonth]}..."
+              oninput="saveRec('${currentPerson}',${currentMonth},'${sub.id}','${e.key}',this.value)">${val}</textarea>
+          </div>`;
+        }).join('');
+        recEquipoHtml=`<div style="margin-top:10px">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:.04em">Recomendaciones growth por persona — ${MESES[currentMonth]}</div>
+          <div class="rec-equipo-grid">${cardsHtml}</div>
+        </div>`;
+      }
+      if(sub.une_detalle){
+        const unes=[
+          {key:'une_ofta',lbl:'OFTA'},{key:'une_car',lbl:'CAR'},{key:'une_neu',lbl:'NEU'},
+          {key:'une_inf',lbl:'INF'},{key:'une_resp',lbl:'RESP'},{key:'une_gas',lbl:'GAS'},
+          {key:'une_gun',lbl:'GUN'},{key:'une_otc',lbl:'OTC'}
+        ];
+        let totalEnvios=0;
+        let cellsHtml=unes.map(u=>{
+          const v=parseInt(getOV(currentPerson,currentMonth,sub.id,u.key))||0;
+          totalEnvios+=v;
+          return `<div class="une-cell">
+            <div class="une-lbl">${u.lbl}</div>
+            <input class="une-input" type="number" min="0" value="${v||''}" placeholder="0"
+              onchange="setOV('${currentPerson}',${currentMonth},'${sub.id}','${u.key}',this.value);renderObjetivos()"
+              title="Mailings enviados a ${u.lbl} este mes">
+          </div>`;
+        }).join('');
+        uneDetalleHtml=`<div style="margin-top:8px">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.04em">Detalle mailings por UNE este mes</div>
+          <div class="une-grid">
+            ${cellsHtml}
+            <div class="une-cell total-cell">
+              <div class="une-lbl">Total</div>
+              <div class="une-total">${totalEnvios}</div>
+            </div>
+          </div>
+        </div>`;
+      }
+      sub.campos.forEach(c=>{
+        if(c.tipo==='entregable'){
+          hasEntregable=true;
+          const done=getOV(currentPerson,currentMonth,sub.id,c.key+'_done')==='1';
+          const fecha=getOV(currentPerson,currentMonth,sub.id,c.key+'_fecha');
+          const link=getOV(currentPerson,currentMonth,sub.id,c.key+'_link');
+          const v=done?100:0;
+          // sync numeric value so semáforo funciona
+          if(done&&getOV(currentPerson,currentMonth,sub.id,c.key)!=='100')
+            setOV(currentPerson,currentMonth,sub.id,c.key,'100');
+          entregableHtml+=`<div class="entregable-block">
+            <div class="entregable-top">
+              <span class="entregable-lbl">${c.lbl}</span>
+              <span class="entregable-meta">${c.meta_lbl}</span>
+            </div>
+            ${c.hint?`<div style="font-size:10px;color:var(--text3);margin-bottom:6px;line-height:1.4;padding:0 0 4px">${c.hint}</div>`:''}
+            <div class="entregable-body">
+              <div class="entregable-row">
+                <button class="btn-completado${done?' done':''}" onclick="toggleEntregable('${currentPerson}',${currentMonth},'${sub.id}','${c.key}')">
+                  ${done?'✓ Completado':'Marcar completado'}
+                </button>
+                <input type="date" class="entregable-fecha" value="${fecha}" title="Fecha de entrega real"
+                  onchange="setOV('${currentPerson}',${currentMonth},'${sub.id}','${c.key}_fecha',this.value);renderObjetivos()">
+              </div>
+              <div class="entregable-row">
+                <input type="url" class="entregable-link" placeholder="🔗 Pegar link del entregable (Drive, Looker, etc.)..."
+                  value="${link}" onchange="setOV('${currentPerson}',${currentMonth},'${sub.id}','${c.key}_link',this.value)">
+                ${link?`<a class="entregable-link-view" href="${link}" target="_blank">Ver →</a>`:''}
+              </div>
+            </div>
+          </div>`;
+        } else {
+          const v=getOV(currentPerson,currentMonth,sub.id,c.key);
+          const hintHtml=c.hint?`<div style="font-size:10px;color:var(--text3);margin-bottom:4px;line-height:1.4">${c.hint}</div>`:'';
+          if(c.tipo==='select'&&c.opciones){
+            const selOpts=c.opciones.map((o,i)=>`<option value="${i+1}"${v==i+1?' selected':''}>${o}</option>`).join('');
+            const selVal=parseInt(v)||0;
+            const selColor=selVal===0?'var(--text3)':selVal>=4?'#639922':selVal>=3?'var(--amber)':selVal>=2?'#E97B2E':'var(--red)';
+            camposHtml+=`<div class="metric-box"><div class="metric-lbl">${c.lbl}</div><div class="metric-meta">${c.meta_lbl}</div>${hintHtml}<select class="metric-input" style="color:${selColor};font-weight:${selVal>0?'500':'normal'}" onchange="setOV('${currentPerson}',${currentMonth},'${sub.id}','${c.key}',this.value);renderObjetivos()"><option value="">Seleccionar...</option>${selOpts}</select></div>`;
+          } else {
+            camposHtml+=`<div class="metric-box"><div class="metric-lbl">${c.lbl}</div><div class="metric-meta">${c.meta_lbl}</div>${hintHtml}<input class="metric-input" type="number" step="any" value="${v}" placeholder="Ingresar valor numérico..." oninput="setOV('${currentPerson}',${currentMonth},'${sub.id}','${c.key}',this.value)" onchange="renderObjetivos()"></div>`;
+          }
+        }
+      });
+      camposHtml+='</div>';
+      if(hasEntregable) camposHtml=entregableHtml+(camposHtml==='<div class="metrics-grid"></div>'?'':camposHtml);
+      subsHtml+=`<div class="sub-obj"><div class="sub-top"><div class="sub-semaforo s-${ss}"></div><span class="sub-title">${sub.titulo}</span><span class="sub-peso">${sub.peso}%</span></div>${camposHtml}${uneDetalleHtml}${recEquipoHtml}<div class="progress-wrap"><div class="progress-lbl"><span>Avance mes actual</span><span>${pct}%</span></div><div class="progress-bg"><div class="progress-fill ${fillCl}" style="width:${pct}%"></div></div></div>${al.m?`<div class="alert-box alert-${al.t}">${al.m}</div>`:''}<div class="nota-row"><input class="nota-input" type="text" placeholder="Nota para ${mes}..." value="${nota.replace(/"/g,'&quot;')}" onchange="setONota('${currentPerson}',${currentMonth},'${sub.id}',this.value)"></div></div>`;
+    });
+    html+=`<div class="obj-card">
+      <div class="obj-header" onclick="toggleOObj('${obj.id}')">
+        <div class="semaforo s-${sem}"></div>
+        <span class="obj-num">${obj.num}.</span>
+        <span class="obj-title">${obj.titulo}</span>
+        <span class="chev${isOpen?' open':''}">▶</span>
+      </div>
+      <div class="obj-anual-strip">
+        <span class="obj-anual-lbl" title="Barra: avance real acumulado. Línea morada: ritmo esperado al mes actual (${tiempo}% del año = ${MESES[currentMonth]})">Cumplimiento anual</span>
+        <div class="obj-anual-bar-bg">
+          <div class="obj-anual-bar-fill" style="width:${Math.min(100,avanceAnual)}%;background:${barAnualColor}"></div>
+          <div class="obj-anual-marker" style="left:${Math.min(tiempo,99)}%"></div>
+        </div>
+        <span class="obj-anual-pct" style="color:${barAnualColor}">${avanceAnual}%</span>
+        <span class="obj-anual-tag ${tagAnualCl}">${tagAnualTxt}</span>
+        <span style="font-size:10px;color:var(--text3);white-space:nowrap">esperado: ${tiempo}%</span>
+      </div>
+      <div id="ob-${obj.id}" style="display:${isOpen?'block':'none'}">
+        <div class="obj-body">${subsHtml}</div>
+      </div>
+    </div>`;
+  });
+  panel.innerHTML=html;
+  document.getElementById('s-total').textContent=pd.objetivos.length;
+  document.getElementById('s-verde').textContent=sv;
+  document.getElementById('s-amarillo').textContent=sa;
+  document.getElementById('s-rojo').textContent=sr;
+}
+function toggleOObj(id){
+  const el=document.getElementById('ob-'+id);
+  const isOpen=el.style.display!=='none';
+  openObjs[id]=!isOpen;
+  el.style.display=isOpen?'none':'block';
+  el.previousElementSibling.querySelector('.chev').classList.toggle('open',!isOpen);
+}
+function setPerson(p,btn){
+  currentPerson=p;openObjs={};
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderObjetivos();
+}
+function setVista(modo, btn){
+  vistaMode=modo;
+  // Actualizar estilos de botones
+  ['vtab-mes','vtab-acum'].forEach(id=>{
+    const b=document.getElementById(id);
+    if(!b)return;
+    const active=b.id==='vtab-'+modo;
+    b.style.background=active?'var(--bg)':'none';
+    b.style.color=active?'var(--text)':'var(--text2)';
+    b.style.border=active?'0.5px solid var(--border)':'none';
+  });
+  currentMonthFrom=vistaMode==='acum'?1:currentMonth;
+  updateVistaLbl();
+  renderObjetivos();
+}
+function setMonthRange(){
+  const mt=document.getElementById('month-to');
+  currentMonth=parseInt(mt.value)||now.getMonth()+1;
+  currentMonthFrom=vistaMode==='acum'?1:currentMonth;
+  updateVistaLbl();
+  renderObjetivos();
+}
+function updateVistaLbl(){
+  const lbl=document.getElementById('vista-lbl');
+  if(!lbl)return;
+  lbl.textContent=vistaMode==='acum'
+    ? `Ene → ${MESES[currentMonth]}`
+    : MESES[currentMonth];
+}
+
+/* ════════ GESTOR ════════ */
+const TIPOS={reporte:'type-reporte',diseno:'type-diseno',seguimiento:'type-seguimiento',plataforma:'type-plataforma'};
+const TIPO_LBL={reporte:'Reporte',diseno:'Diseño',seguimiento:'Seguimiento',plataforma:'Plataforma'};
+const STATUSES=['pendiente','proceso','listo','bloqueado'];
+const ST_CL={pendiente:'st-pendiente',proceso:'st-proceso',listo:'st-listo',bloqueado:'st-bloqueado'};
+const ST_LBL={pendiente:'Pendiente',proceso:'En proceso',listo:'Listo',bloqueado:'Bloqueado'};
+const TYPE_COLOR={reporte:'#534AB7',diseno:'#0F6E56',seguimiento:'#BA7517',plataforma:'#993C1D'};
+let gpid=10,gsid=100,weekOffset=0,openComments={},dragSrcPid=null,dragSrcSid=null,dragProjId=null;
+
+const DEFAULT_PROJECTS=[
+  {id:1,name:'Digital News Chile',type:'reporte',resp:'César',start:'2026-06-01',end:'2026-06-30',open:true,subs:[
+    {id:1,text:'Recopilar métricas del mes',status:'listo',date:'2026-06-10',done:true,resp:'César',comment:''},
+    {id:2,text:'Redactar contenido editorial',status:'proceso',date:'2026-06-18',done:false,resp:'César',comment:''},
+    {id:3,text:'Diseño y maquetación',status:'pendiente',date:'2026-06-23',done:false,resp:'César',comment:''},
+    {id:4,text:'Revisión y aprobación',status:'pendiente',date:'2026-06-26',done:false,resp:'',comment:''},
+    {id:5,text:'Envío final',status:'pendiente',date:'2026-06-30',done:false,resp:'César',comment:''}]},
+  {id:2,name:'Digital News Ecuador',type:'reporte',resp:'César',start:'2026-06-01',end:'2026-06-30',open:false,subs:[
+    {id:6,text:'Recopilar métricas del mes',status:'proceso',date:'2026-06-18',done:false,resp:'César',comment:''},
+    {id:7,text:'Redactar contenido editorial',status:'pendiente',date:'2026-06-20',done:false,resp:'César',comment:''},
+    {id:8,text:'Diseño y maquetación',status:'pendiente',date:'2026-06-24',done:false,resp:'César',comment:''},
+    {id:9,text:'Revisión y envío',status:'pendiente',date:'2026-06-30',done:false,resp:'César',comment:''}]},
+  {id:3,name:'Digital News Costa Rica',type:'reporte',resp:'César',start:'2026-06-01',end:'2026-06-30',open:false,subs:[
+    {id:10,text:'Recopilar métricas del mes',status:'pendiente',date:'2026-06-19',done:false,resp:'César',comment:''},
+    {id:11,text:'Redactar contenido editorial',status:'pendiente',date:'2026-06-21',done:false,resp:'César',comment:''},
+    {id:12,text:'Diseño y maquetación',status:'pendiente',date:'2026-06-25',done:false,resp:'César',comment:''},
+    {id:13,text:'Revisión y envío',status:'pendiente',date:'2026-06-30',done:false,resp:'César',comment:''}]},
+  {id:4,name:'Mockup Looker Studio — Bienestar SAVAL',type:'diseno',resp:'César',start:'2026-06-17',end:'2026-07-04',open:false,subs:[
+    {id:14,text:'Definir KPIs y métricas a mostrar',status:'pendiente',date:'2026-06-18',done:false,resp:'César',comment:''},
+    {id:15,text:'Estructura y wireframe del dashboard',status:'pendiente',date:'2026-06-22',done:false,resp:'César',comment:''},
+    {id:16,text:'Construcción en Looker Studio',status:'pendiente',date:'2026-06-27',done:false,resp:'César',comment:''},
+    {id:17,text:'Revisión con stakeholders',status:'pendiente',date:'2026-07-02',done:false,resp:'',comment:''},
+    {id:18,text:'Versión final aprobada',status:'pendiente',date:'2026-07-04',done:false,resp:'',comment:''}]},
+  {id:5,name:'Mesa Digital',type:'seguimiento',resp:'César',start:'2026-06-17',end:'2026-06-30',open:false,subs:[
+    {id:19,text:'Preparar agenda y temas de la mesa',status:'pendiente',date:'2026-06-18',done:false,resp:'César',comment:''},
+    {id:20,text:'Consolidar avances de cada área',status:'pendiente',date:'2026-06-20',done:false,resp:'César',comment:''},
+    {id:21,text:'Presentación ejecutiva',status:'pendiente',date:'2026-06-25',done:false,resp:'César',comment:''},
+    {id:22,text:'Seguimiento de acuerdos',status:'pendiente',date:'2026-06-30',done:false,resp:'César',comment:''}]},
+  {id:6,name:'Seguimiento métricas compañeros',type:'seguimiento',resp:'César',start:'2026-06-17',end:'2026-06-27',open:false,subs:[
+    {id:23,text:'Definir plantilla de control compartida',status:'pendiente',date:'2026-06-18',done:false,resp:'César',comment:''},
+    {id:24,text:'Recopilar métricas de cada compañero',status:'pendiente',date:'2026-06-23',done:false,resp:'',comment:''},
+    {id:25,text:'Consolidar y revisar desviaciones',status:'pendiente',date:'2026-06-25',done:false,resp:'César',comment:''},
+    {id:26,text:'Informe resumen al equipo',status:'pendiente',date:'2026-06-27',done:false,resp:'César',comment:''}]}
+];
+
+let gprojects=[];
+function gload(){
+  try{
+    const d=cloudGet('saval_gestor_v3');
+    if(d){const p=JSON.parse(d);gprojects=p.projects;gpid=p.pid||10;gsid=p.sid||100;}
+    else{gprojects=JSON.parse(JSON.stringify(DEFAULT_PROJECTS));}
+  }catch(e){gprojects=JSON.parse(JSON.stringify(DEFAULT_PROJECTS));}
+}
+function gsave(){
+  cloudSet('saval_gestor_v3', JSON.stringify({projects:gprojects,pid:gpid,sid:gsid}));
+  showToast();
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function getPct(p){if(!p.subs.length)return 0;return Math.round(p.subs.filter(s=>s.done).length/p.subs.length*100)}
+function isoToday(){return now.toISOString().slice(0,10)}
+function toISO(d){return d.toISOString().slice(0,10)}
+
+function renderGestor(){
+  const el=document.getElementById('projects-list');
+  el.innerHTML='';
+  let total=0,pend=0,proc=0,done=0;
+  gprojects.forEach(p=>{
+    p.subs.forEach(s=>{total++;if(s.done)done++;else if(s.status==='proceso')proc++;else pend++;});
+    const pct=getPct(p);
+    const block=document.createElement('div');
+    block.className='project-block';block.draggable=true;block.dataset.pid=p.id;
+    block.addEventListener('dragstart',e=>{dragProjId=p.id;block.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('type','project');});
+    block.addEventListener('dragend',()=>{block.classList.remove('dragging');document.querySelectorAll('.project-block').forEach(b=>b.classList.remove('drag-over'));});
+    block.addEventListener('dragover',e=>{e.preventDefault();if(dragProjId!==null){e.dataTransfer.dropEffect='move';document.querySelectorAll('.project-block').forEach(b=>b.classList.remove('drag-over'));block.classList.add('drag-over');}});
+    block.addEventListener('dragleave',e=>{if(!block.contains(e.relatedTarget))block.classList.remove('drag-over');});
+    block.addEventListener('drop',e=>{e.preventDefault();block.classList.remove('drag-over');if(dragProjId!==null&&dragProjId!==p.id){const fi=gprojects.findIndex(x=>x.id===dragProjId);const ti=gprojects.findIndex(x=>x.id===p.id);const[m]=gprojects.splice(fi,1);gprojects.splice(ti,0,m);dragProjId=null;gsave();renderGestor();}});
+    const subsHtml=p.subs.map(s=>{
+      const cOpen=!!openComments[s.id];
+      return`<div class="subtask-row" draggable="true" data-pid="${p.id}" data-sid="${s.id}" ondragstart="onSubDS(event,${p.id},${s.id})" ondragend="onSubDE(event)" ondragover="onSubDO(event,${p.id},${s.id})" ondragleave="onSubDL(event)" ondrop="onSubDrop(event,${p.id},${s.id})">
+        <div class="sub-main">
+          <span class="sub-drag-handle">⠿</span>
+          <div class="cb${s.done?' checked':''}" onclick="gToggleDone(${p.id},${s.id})">${s.done?'✓':''}</div>
+          <span class="subtask-text${s.done?' done':''}">${esc(s.text)}</span>
+          <span class="resp-badge">${s.resp?esc(s.resp):'sin asignar'}</span>
+          <input type="date" class="subtask-date-input" value="${s.date||''}" onchange="gSaveDate(${p.id},${s.id},this.value)">
+          <select class="sub-status-select ${ST_CL[s.status]}" onchange="gChangeStatus(${p.id},${s.id},this.value)">
+            ${STATUSES.map(st=>`<option value="${st}"${s.status===st?' selected':''}>${ST_LBL[st]}</option>`).join('')}
+          </select>
+          <div class="sub-actions">
+            <button class="btn-cmt${cOpen?' active':''}" onclick="gToggleComment(${s.id})">💬 Notas</button>
+            <button class="btn-x" onclick="gDeleteSub(${p.id},${s.id})" title="Eliminar">✕</button>
+          </div>
+        </div>
+        <div class="comment-panel" id="gca-${s.id}" style="display:${cOpen?'block':'none'}">
+          <div class="comment-label">📝 Notas y comentarios</div>
+          <textarea class="comment-box" placeholder="Agrega notas, bloqueos o contexto..." oninput="gSaveComment(${p.id},${s.id},this.value)">${esc(s.comment||'')}</textarea>
+          <div class="comment-meta"><label>Responsable:</label><input type="text" value="${esc(s.resp||'')}" placeholder="Nombre..." style="width:130px" oninput="gSaveResp(${p.id},${s.id},this.value)"><label>Fecha:</label><input type="date" value="${s.date||''}" oninput="gSaveDate(${p.id},${s.id},this.value)"></div>
+        </div>
+      </div>`;
+    }).join('');
+    block.innerHTML=`
+      <div class="project-header" onclick="gHeaderClick(event,${p.id})">
+        <span class="drag-handle">⠿⠿</span>
+        <span class="chev-g${p.open?' open':''}">▶</span>
+        <span class="project-name">${esc(p.name)}</span>
+        <span class="project-type ${TIPOS[p.type]}">${TIPO_LBL[p.type]}</span>
+        ${p.resp?`<span class="resp-tag">👤 ${esc(p.resp)}</span>`:''}
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+        <span class="project-pct">${pct}%</span>
+        <span class="project-dates">📅 ${fmt(p.start)} → ${fmt(p.end)}</span>
+        <button class="btn-x" onclick="event.stopPropagation();gDeleteProject(${p.id})" title="Eliminar tarea madre">✕</button>
+      </div>
+      <div id="gsubs-${p.id}" style="display:${p.open?'block':'none'}">
+        <div class="subtasks">${subsHtml}</div>
+        <div class="add-sub-row">
+          <input type="text" placeholder="+ Nueva subtarea..." id="ginp-${p.id}" onkeydown="if(event.key==='Enter')gAddSub(${p.id})">
+          <input type="text" placeholder="Responsable" id="gresp-${p.id}" style="width:90px">
+          <input type="date" id="gdt-${p.id}">
+          <select id="gst-${p.id}">${STATUSES.slice(0,3).map(s=>`<option value="${s}">${ST_LBL[s]}</option>`).join('')}</select>
+          <button onclick="gAddSub(${p.id})">+ Agregar</button>
+        </div>
+      </div>`;
+    el.appendChild(block);
+  });
+  document.getElementById('g-total').textContent=total;
+  document.getElementById('g-pend').textContent=pend;
+  document.getElementById('g-proc').textContent=proc;
+  document.getElementById('g-done').textContent=done;
+}
+
+function gHeaderClick(e,id){if(e.target.closest('.btn-x')||e.target.closest('.drag-handle'))return;gToggleProject(id);}
+function gToggleProject(id){const p=gprojects.find(x=>x.id===id);p.open=!p.open;gsave();renderGestor();}
+function gToggleDone(pid,sid){const p=gprojects.find(x=>x.id===pid);const s=p.subs.find(x=>x.id===sid);s.done=!s.done;if(s.done)s.status='listo';gsave();renderGestor();}
+function gChangeStatus(pid,sid,val){const p=gprojects.find(x=>x.id===pid);const s=p.subs.find(x=>x.id===sid);s.status=val;s.done=val==='listo';gsave();renderGestor();}
+function gDeleteSub(pid,sid){if(!confirm('¿Eliminar esta subtarea?'))return;const p=gprojects.find(x=>x.id===pid);p.subs=p.subs.filter(s=>s.id!==sid);gsave();renderGestor();}
+function gDeleteProject(id){if(!confirm('¿Eliminar esta tarea madre y todas sus subtareas?'))return;gprojects=gprojects.filter(p=>p.id!==id);gsave();renderGestor();}
+function gSaveComment(pid,sid,v){const p=gprojects.find(x=>x.id===pid);const s=p.subs.find(x=>x.id===sid);s.comment=v;gsave();}
+function gSaveResp(pid,sid,v){const p=gprojects.find(x=>x.id===pid);const s=p.subs.find(x=>x.id===sid);s.resp=v;gsave();}
+function gSaveDate(pid,sid,v){const p=gprojects.find(x=>x.id===pid);const s=p.subs.find(x=>x.id===sid);s.date=v;gsave();renderGestor();}
+function gToggleComment(sid){openComments[sid]=!openComments[sid];renderGestor();}
+function gAddSub(pid){
+  const inp=document.getElementById('ginp-'+pid);const txt=inp.value.trim();if(!txt)return;
+  const p=gprojects.find(x=>x.id===pid);
+  p.subs.push({id:gsid++,text:txt,status:document.getElementById('gst-'+pid).value,date:document.getElementById('gdt-'+pid).value||'',done:false,resp:document.getElementById('gresp-'+pid).value.trim(),comment:''});
+  inp.value='';gsave();renderGestor();
+}
+function toggleAddForm(){document.getElementById('add-form').classList.toggle('visible');}
+function addProject(){
+  const name=document.getElementById('np-name').value.trim();if(!name)return;
+  gprojects.push({id:gpid++,name,type:document.getElementById('np-type').value,resp:document.getElementById('np-resp').value.trim(),start:document.getElementById('np-start').value,end:document.getElementById('np-end').value,open:true,subs:[]});
+  document.getElementById('np-name').value='';
+  toggleAddForm();gsave();renderGestor();
+}
+function onSubDS(e,pid,sid){dragSrcPid=pid;dragSrcSid=sid;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('type','subtask');e.stopPropagation();setTimeout(()=>e.target.classList.add('sub-dragging'),0);}
+function onSubDE(e){e.target.classList.remove('sub-dragging');document.querySelectorAll('.subtask-row').forEach(r=>r.classList.remove('sub-drag-over'));}
+function onSubDO(e,pid,sid){if(dragSrcSid===null)return;e.preventDefault();e.stopPropagation();document.querySelectorAll('.subtask-row').forEach(r=>r.classList.remove('sub-drag-over'));if(sid!==dragSrcSid)e.currentTarget.classList.add('sub-drag-over');}
+function onSubDL(e){e.currentTarget.classList.remove('sub-drag-over');}
+function onSubDrop(e,toPid,toSid){e.preventDefault();e.stopPropagation();document.querySelectorAll('.subtask-row').forEach(r=>r.classList.remove('sub-drag-over'));if(dragSrcSid===null||dragSrcSid===toSid)return;const srcP=gprojects.find(x=>x.id===dragSrcPid);const tgtP=gprojects.find(x=>x.id===toPid);const si=srcP.subs.findIndex(s=>s.id===dragSrcSid);const ti=tgtP.subs.findIndex(s=>s.id===toSid);const[m]=srcP.subs.splice(si,1);tgtP.subs.splice(ti,0,m);dragSrcPid=null;dragSrcSid=null;gsave();renderGestor();}
+
+function setGestorView(v,btn){
+  document.querySelectorAll('.view-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  document.getElementById('g-lista').style.display=v==='lista'?'':'none';
+  document.getElementById('g-semana').style.display=v==='semana'?'':'none';
+  if(v==='semana')renderWeek();
+}
+function getWeekDates(offset){const d=new Date(now);const day=d.getDay()||7;d.setDate(d.getDate()-day+1+offset*7);return Array.from({length:5},(_,i)=>{const x=new Date(d);x.setDate(d.getDate()+i);return x});}
+function renderWeek(){
+  const dates=getWeekDates(weekOffset);const todayISO=isoToday();
+  document.getElementById('week-label').textContent=`${dates[0].getDate()} ${MONTHS_S[dates[0].getMonth()]} — ${dates[4].getDate()} ${MONTHS_S[dates[4].getMonth()]} ${dates[4].getFullYear()}`;
+  document.getElementById('week-header').innerHTML=dates.map((d,i)=>`<div class="week-day-hdr${toISO(d)===todayISO?' today':''}">${DAYS[i]} ${d.getDate()}</div>`).join('');
+  const grid=document.getElementById('week-grid');grid.innerHTML='';
+  dates.forEach(d=>{
+    const iso=toISO(d);const col=document.createElement('div');
+    col.className='week-col'+(iso===todayISO?' today-col':'');
+    const chips=[];
+    gprojects.forEach(p=>{p.subs.forEach(s=>{if(s.date===iso){chips.push(`<div class="week-chip" style="border-left-color:${TYPE_COLOR[p.type]}"><div class="chip-parent">${esc(p.name)}</div><div>${esc(s.text)}</div>${s.resp?`<div style="font-size:10px;color:var(--text3);margin-top:3px">👤 ${esc(s.resp)}</div>`:''}</div>`);}});});
+    col.innerHTML=chips.length?chips.join(''):`<div style="font-size:11px;color:var(--text3);text-align:center;padding-top:12px">Sin tareas</div>`;
+    grid.appendChild(col);
+  });
+}
+function shiftWeek(n){weekOffset+=n;renderWeek();}
+function goToday(){weekOffset=0;renderWeek();}
+
+/* ════════ INIT ════════ */
+async function initApp(){
+  showLoadingOverlay(true);
+  await cloudLoadAll();
+  gload();
+  renderObjetivos();
+  renderGestor();
+  showLoadingOverlay(false);
+}
+
+function showLoadingOverlay(show){
+  let ov=document.getElementById('cloud-loading-overlay');
+  if(show){
+    if(!ov){
+      ov=document.createElement('div');
+      ov.id='cloud-loading-overlay';
+      ov.style.cssText='position:fixed;inset:0;background:rgba(255,255,255,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
+      ov.innerHTML='<div style="width:28px;height:28px;border:3px solid #e0dfd8;border-top-color:#534AB7;border-radius:50%;animation:spin 0.8s linear infinite"></div><div style="font-size:13px;color:#555">Cargando datos desde la nube...</div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
+      document.body.appendChild(ov);
+    }
+    ov.style.display='flex';
+  } else if(ov){
+    ov.style.display='none';
+  }
+}
+
+initApp();
+</script>
+
+</body>
+</html>
