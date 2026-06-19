@@ -259,34 +259,89 @@ select{font-size:12px;padding:5px 10px;border-radius:var(--radius);border:0.5px 
 </head>
 <body>
 
-<div id="access-gate" style="position:fixed;inset:0;background:#f0efe8;z-index:10000;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
-  <div style="background:#fff;border-radius:14px;padding:32px 28px;width:90%;max-width:340px;box-shadow:0 8px 30px rgba(0,0,0,0.08);text-align:center">
-    <div style="font-size:16px;font-weight:600;color:#1a1a1a;margin-bottom:4px">SAVAL Digital 2026</div>
-    <div style="font-size:12px;color:#888;margin-bottom:20px">Ingresa la clave de acceso del equipo</div>
-    <input id="access-pass" type="password" placeholder="Clave de acceso" style="width:100%;font-size:14px;padding:10px 12px;border-radius:8px;border:1px solid #ddd;margin-bottom:10px;box-sizing:border-box" onkeydown="if(event.key==='Enter')checkAccess()">
-    <button onclick="checkAccess()" style="width:100%;font-size:13px;padding:10px;border-radius:8px;border:none;background:#534AB7;color:#fff;cursor:pointer;font-weight:500">Entrar</button>
-    <div id="access-error" style="font-size:11px;color:#E24B4A;margin-top:10px;display:none">Clave incorrecta, intenta de nuevo</div>
+<!-- Modal de login (solo para el admin) -->
+<div id="login-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:10001;display:none;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <div style="background:#fff;border-radius:14px;padding:28px 26px;width:90%;max-width:320px;box-shadow:0 8px 30px rgba(0,0,0,0.15)">
+    <div style="font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:4px">Iniciar sesión</div>
+    <div style="font-size:11px;color:#888;margin-bottom:16px">Solo para editar el panel</div>
+    <input id="login-email" type="email" placeholder="Email" style="width:100%;font-size:13px;padding:9px 11px;border-radius:7px;border:1px solid #ddd;margin-bottom:8px;box-sizing:border-box">
+    <input id="login-pass" type="password" placeholder="Contraseña" style="width:100%;font-size:13px;padding:9px 11px;border-radius:7px;border:1px solid #ddd;margin-bottom:10px;box-sizing:border-box" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()" style="width:100%;font-size:12px;padding:9px;border-radius:7px;border:none;background:#534AB7;color:#fff;cursor:pointer;font-weight:500;margin-bottom:6px">Entrar</button>
+    <button onclick="closeLoginModal()" style="width:100%;font-size:12px;padding:8px;border-radius:7px;border:none;background:transparent;color:#888;cursor:pointer">Cancelar</button>
+    <div id="login-error" style="font-size:11px;color:#E24B4A;margin-top:8px;display:none">Email o contraseña incorrectos</div>
   </div>
 </div>
 
 <script>
-const ACCESS_PASS='saval2026'; // cámbiala cuando quieras, ver instrucciones
-function checkAccess(){
-  const v=document.getElementById('access-pass').value;
-  if(v===ACCESS_PASS){
-    sessionStorage.setItem('saval_access_ok','1');
-    document.getElementById('access-gate').style.display='none';
-  } else {
-    document.getElementById('access-error').style.display='block';
+const SB_AUTH_URL='https://pfajjfglzsvribhremwf.supabase.co/auth/v1';
+const SB_ANON_KEY='sb_publishable_btGXQfzBY0y16dDO4E3nmg_uJlZOfOP';
+let isAdmin=false;
+let adminToken=null;
+
+function openLoginModal(){ document.getElementById('login-modal').style.display='flex'; }
+function closeLoginModal(){ document.getElementById('login-modal').style.display='none'; document.getElementById('login-error').style.display='none'; }
+
+async function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  try{
+    const res=await fetch(SB_AUTH_URL+'/token?grant_type=password', {
+      method:'POST',
+      headers:{'apikey':SB_ANON_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email,password:pass})
+    });
+    const data=await res.json();
+    if(res.ok && data.access_token){
+      adminToken=data.access_token;
+      isAdmin=true;
+      sessionStorage.setItem('saval_admin_token', adminToken);
+      sessionStorage.setItem('saval_admin_email', email);
+      closeLoginModal();
+      updateAdminUI();
+    } else {
+      document.getElementById('login-error').style.display='block';
+    }
+  }catch(e){
+    document.getElementById('login-error').style.display='block';
   }
 }
-if(sessionStorage.getItem('saval_access_ok')==='1'){
-  document.addEventListener('DOMContentLoaded',()=>{
-    const g=document.getElementById('access-gate');
-    if(g) g.style.display='none';
+
+function doLogout(){
+  isAdmin=false;
+  adminToken=null;
+  sessionStorage.removeItem('saval_admin_token');
+  sessionStorage.removeItem('saval_admin_email');
+  updateAdminUI();
+}
+
+// Restaurar sesión si ya había login en esta pestaña
+const savedToken=sessionStorage.getItem('saval_admin_token');
+if(savedToken){
+  adminToken=savedToken;
+  isAdmin=true;
+}
+
+function updateAdminUI(){
+  const badge=document.getElementById('admin-badge');
+  if(!badge) return;
+  if(isAdmin){
+    const email=sessionStorage.getItem('saval_admin_email')||'';
+    badge.innerHTML=`<span style="font-size:11px;color:#27500A;background:#EAF3DE;padding:3px 10px;border-radius:20px;border:0.5px solid #C0DD97">✓ Editando como ${email.split('@')[0]}</span> <button onclick="doLogout()" style="font-size:11px;padding:3px 9px;border-radius:20px;border:0.5px solid #ddd;background:transparent;color:#888;cursor:pointer;margin-left:4px">Salir</button>`;
+  } else {
+    badge.innerHTML=`<button onclick="openLoginModal()" style="font-size:11px;padding:4px 12px;border-radius:20px;border:0.5px solid #ddd;background:transparent;color:#888;cursor:pointer">🔒 Solo lectura — Iniciar sesión</button>`;
+  }
+  // Deshabilitar todos los inputs/selects/textareas/botones de edición si NO es admin
+  document.querySelectorAll('input,select,textarea').forEach(el=>{
+    if(el.id==='login-email'||el.id==='login-pass') return;
+    el.disabled=!isAdmin;
+  });
+  document.querySelectorAll('.btn-x,.btn-cmt,[onclick*="toggle"],[onclick*="add"],[onclick*="delete"],[onclick*="save"],.drag-handle,.sub-drag-handle').forEach(el=>{
+    if(isAdmin){ el.style.pointerEvents=''; el.style.opacity=''; }
+    else { el.style.pointerEvents='none'; el.style.opacity='0.4'; }
   });
 }
 </script>
+
 
 
 <nav class="main-nav">
@@ -296,6 +351,7 @@ if(sessionStorage.getItem('saval_access_ok')==='1'){
     <button class="nav-tab" onclick="showSection('gestor',this)">Gestor tareas</button>
   </div>
   <span class="nav-date" id="nav-date"></span>
+  <span id="admin-badge" style="margin-left:10px"></span>
 </nav>
 
 <!-- ═══════════════ OBJETIVOS ═══════════════ -->
@@ -420,14 +476,25 @@ function cloudGet(key){
   return cloudStore.hasOwnProperty(key) ? cloudStore[key] : '';
 }
 
-// Escritura: actualiza caché local al instante y encola sync a Supabase
+// Headers dinámicos: usa el token del admin si hay sesión, si no usa la key pública (solo lectura por RLS)
+function sbWriteHeaders(){
+  return {
+    'apikey':SUPABASE_KEY,
+    'Authorization': isAdmin && adminToken ? 'Bearer '+adminToken : 'Bearer '+SUPABASE_KEY,
+    'Content-Type':'application/json'
+  };
+}
+
+// Escritura: actualiza caché local al instante y encola sync a Supabase (solo si es admin)
 function cloudSet(key,value){
+  if(!isAdmin){ return; } // bloqueo en frontend; el backend también lo bloquea via RLS
   cloudStore[key]=value;
   syncQueue.add(key);
   scheduleSync();
 }
 
 function cloudDelete(key){
+  if(!isAdmin){ return; }
   delete cloudStore[key];
   syncDeleteRemote(key);
 }
@@ -444,11 +511,12 @@ async function flushSyncQueue(){
   if(keys.length===0) return;
   const rows=keys.map(k=>({clave:k, valor:cloudStore[k], updated_at:new Date().toISOString()}));
   try{
-    await fetch(SUPABASE_URL+'/rest/v1/panel_datos?on_conflict=clave', {
+    const res=await fetch(SUPABASE_URL+'/rest/v1/panel_datos?on_conflict=clave', {
       method:'POST',
-      headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
+      headers:{...sbWriteHeaders(),'Prefer':'resolution=merge-duplicates'},
       body:JSON.stringify(rows)
     });
+    if(!res.ok){ console.error('Supabase rechazó la escritura (¿no autenticado?):', res.status); return; }
     showCloudSynced();
   }catch(e){
     console.error('Error sincronizando con Supabase:',e);
@@ -458,7 +526,7 @@ async function flushSyncQueue(){
 async function syncDeleteRemote(key){
   try{
     await fetch(SUPABASE_URL+'/rest/v1/panel_datos?clave=eq.'+encodeURIComponent(key), {
-      method:'DELETE', headers:SB_HEADERS
+      method:'DELETE', headers:sbWriteHeaders()
     });
   }catch(e){console.error('Error eliminando de Supabase:',e);}
 }
@@ -1266,6 +1334,7 @@ function renderObjetivos(){
   document.getElementById('s-verde').textContent=sv;
   document.getElementById('s-amarillo').textContent=sa;
   document.getElementById('s-rojo').textContent=sr;
+  if(typeof updateAdminUI==='function') updateAdminUI();
 }
 function toggleOObj(id){
   const el=document.getElementById('ob-'+id);
@@ -1437,6 +1506,7 @@ function renderGestor(){
   document.getElementById('g-pend').textContent=pend;
   document.getElementById('g-proc').textContent=proc;
   document.getElementById('g-done').textContent=done;
+  if(typeof updateAdminUI==='function') updateAdminUI();
 }
 
 function gHeaderClick(e,id){if(e.target.closest('.btn-x')||e.target.closest('.drag-handle'))return;gToggleProject(id);}
@@ -1499,6 +1569,7 @@ async function initApp(){
   gload();
   renderObjetivos();
   renderGestor();
+  updateAdminUI();
   showLoadingOverlay(false);
 }
 
