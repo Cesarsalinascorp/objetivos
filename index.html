@@ -253,6 +253,65 @@ select{font-size:12px;padding:5px 10px;border-radius:var(--radius);border:0.5px 
 .view-tab{font-size:12px;padding:4px 14px;border-radius:6px;border:none;background:none;color:var(--text2);cursor:pointer}
 .view-tab.active{background:var(--bg);color:var(--text);border:0.5px solid var(--border)}
 .toast{position:fixed;bottom:20px;right:20px;background:var(--green-light);color:#27500A;font-size:12px;padding:8px 16px;border-radius:var(--radius);border:0.5px solid #C0DD97;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+
+/* ── RESPONSIVE MOBILE ── */
+@media(max-width:768px){
+  .app{padding:12px 10px}
+  .main-nav{padding:0 12px;flex-wrap:wrap;gap:4px}
+  .nav-brand{font-size:13px;margin-right:8px}
+  .nav-tabs{gap:2px}
+  .nav-tab{font-size:11px;padding:10px 8px}
+  .nav-date{display:none}
+  #admin-badge{font-size:10px}
+  .top-bar{gap:6px}
+  .person-tabs{flex-wrap:wrap;gap:3px}
+  .ptab{font-size:11px;padding:4px 10px}
+  .summary-bar{grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:10px}
+  .sum-n{font-size:18px}
+  .perfil-card{padding:10px 12px}
+  .perfil-top{gap:8px}
+  .perfil-avatar{width:32px;height:32px;font-size:12px}
+  .perfil-name{font-size:13px}
+  .perfil-global-n{font-size:20px}
+  .pobj-row{flex-wrap:wrap;gap:4px;padding:7px 10px}
+  .pobj-right{flex-wrap:wrap;gap:4px}
+  .pobj-bar-bg{width:80px}
+  .pobj-brecha{min-width:unset;font-size:9px;text-align:left}
+  .anual-panel{padding:10px 12px}
+  .obj-row{flex-wrap:wrap;gap:4px}
+  .obj-row-name{max-width:100%;white-space:normal;font-size:11px}
+  .obj-row-bar-bg{min-width:80px}
+  .obj-card{margin-bottom:8px}
+  .obj-header{padding:10px 12px;gap:6px;flex-wrap:nowrap}
+  .obj-title{font-size:12px}
+  .obj-body{padding:10px 12px}
+  .sub-obj{padding:10px 12px}
+  .metrics-grid{grid-template-columns:1fr!important}
+  .sub-top{gap:6px}
+  .sub-title{font-size:11px}
+  .rec-equipo-grid{grid-template-columns:1fr!important}
+  .une-grid{grid-template-columns:repeat(5,1fr)!important}
+  .week-header{grid-template-columns:repeat(5,1fr);gap:3px}
+  .week-grid{grid-template-columns:repeat(5,1fr);gap:3px}
+  .week-col{padding:5px;min-height:60px}
+  .week-chip{font-size:9px;padding:3px 4px}
+  .chip-parent{font-size:8px}
+  .project-header{padding:9px 12px;gap:5px;flex-wrap:wrap}
+  .project-name{font-size:12px;min-width:0}
+  .project-dates{display:none}
+  .progress-bar-wrap{width:50px}
+  .sub-main{padding:7px 10px 7px 8px;gap:5px;flex-wrap:wrap}
+  .subtask-text{font-size:11px}
+  .subtask-date-input{width:90px;font-size:10px}
+  .sub-actions{flex-shrink:0}
+  .add-sub-row{flex-wrap:wrap;gap:5px;padding:7px 10px}
+  .add-sub-row input[type=text]{min-width:80px}
+  .obj-anual-strip{padding:6px 12px;flex-wrap:wrap;gap:6px}
+  .obj-anual-bar-bg{min-width:80px}
+  /* selector mes en mobile */
+  .top-bar>div:last-child{width:100%}
+  .view-tabs{flex-wrap:wrap}
+}
 .chev-g{color:var(--text3);font-size:11px;transition:transform .15s;display:inline-block}
 .chev-g.open{transform:rotate(90deg)}
 </style>
@@ -330,14 +389,25 @@ function updateAdminUI(){
   } else {
     badge.innerHTML=`<button onclick="openLoginModal()" style="font-size:11px;padding:4px 12px;border-radius:20px;border:0.5px solid #ddd;background:transparent;color:#888;cursor:pointer">🔒 Solo lectura — Iniciar sesión</button>`;
   }
-  // Deshabilitar todos los inputs/selects/textareas/botones de edición si NO es admin
+  // IDs que siempre deben estar activos (navegación, no edición)
+  const navIds=new Set(['login-email','login-pass','month-to','month-from','vtab-mes','vtab-acum','month-sel']);
+  // Clases de navegación siempre activas
+  const navClasses=['ptab','view-tab','nav-tab'];
+
   document.querySelectorAll('input,select,textarea').forEach(el=>{
-    if(el.id==='login-email'||el.id==='login-pass') return;
+    if(navIds.has(el.id)) return;
     el.disabled=!isAdmin;
   });
-  document.querySelectorAll('.btn-x,.btn-cmt,[onclick*="toggle"],[onclick*="add"],[onclick*="delete"],[onclick*="save"],.drag-handle,.sub-drag-handle').forEach(el=>{
+  document.querySelectorAll('button').forEach(el=>{
+    if(navIds.has(el.id)) return;
+    if(navClasses.some(c=>el.classList.contains(c))) return;
+    if(el.closest('#login-modal')) return;
+    if(!isAdmin){ el.style.pointerEvents='none'; el.style.opacity='0.4'; }
+    else { el.style.pointerEvents=''; el.style.opacity=''; }
+  });
+  document.querySelectorAll('.drag-handle,.sub-drag-handle').forEach(el=>{
     if(isAdmin){ el.style.pointerEvents=''; el.style.opacity=''; }
-    else { el.style.pointerEvents='none'; el.style.opacity='0.4'; }
+    else { el.style.pointerEvents='none'; el.style.opacity='0.3'; }
   });
 }
 </script>
