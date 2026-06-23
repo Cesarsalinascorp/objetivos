@@ -385,14 +385,14 @@ function updateAdminUI(){
   if(!badge) return;
   if(isAdmin){
     const email=sessionStorage.getItem('saval_admin_email')||'';
-    badge.innerHTML=`<span style="font-size:11px;color:#27500A;background:#EAF3DE;padding:3px 10px;border-radius:20px;border:0.5px solid #C0DD97">✓ Editando como ${email.split('@')[0]}</span> <button onclick="doLogout()" style="font-size:11px;padding:3px 9px;border-radius:20px;border:0.5px solid #ddd;background:transparent;color:#888;cursor:pointer;margin-left:4px">Salir</button>`;
+    badge.innerHTML=`<span style="font-size:11px;color:#27500A;background:#EAF3DE;padding:3px 10px;border-radius:20px;border:0.5px solid #C0DD97">✓ Editando como ${email.split('@')[0]}</span> <button onclick="doLogout()" class="nav-ctrl" style="font-size:11px;padding:3px 9px;border-radius:20px;border:0.5px solid #ddd;background:transparent;color:#888;cursor:pointer;margin-left:4px">Salir</button>`;
   } else {
-    badge.innerHTML=`<button onclick="openLoginModal()" style="font-size:11px;padding:4px 12px;border-radius:20px;border:0.5px solid #ddd;background:transparent;color:#888;cursor:pointer">🔒 Solo lectura — Iniciar sesión</button>`;
+    badge.innerHTML=`<button onclick="openLoginModal()" class="nav-ctrl" style="font-size:11px;padding:4px 12px;border-radius:20px;border:0.5px solid #ddd;background:transparent;color:#888;cursor:pointer">🔒 Solo lectura — Iniciar sesión</button>`;
   }
   // IDs que siempre deben estar activos (navegación, no edición)
   const navIds=new Set(['login-email','login-pass','month-to','month-from','vtab-mes','vtab-acum','month-sel']);
   // Clases de navegación siempre activas
-  const navClasses=['ptab','view-tab','nav-tab'];
+  const navClasses=['ptab','view-tab','nav-tab','nav-ctrl'];
 
   document.querySelectorAll('input,select,textarea').forEach(el=>{
     if(navIds.has(el.id)) return;
