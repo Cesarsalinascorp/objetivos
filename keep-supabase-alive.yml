@@ -1,0 +1,19 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Corre cada 3 días a las 09:00 UTC (06:00 hora Chile aprox)
+    - cron: '0 9 */3 * *'
+  workflow_dispatch: {}  # permite ejecutarlo manualmente desde GitHub también
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase para evitar pausa por inactividad
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" \
+            "https://pfajjfglzsvribhremwf.supabase.co/rest/v1/panel_datos?select=clave&limit=1" \
+            -H "apikey: sb_publishable_btGXQfzBY0y16dDO4E3nmg_uJlZOfOP" \
+            -H "Authorization: Bearer sb_publishable_btGXQfzBY0y16dDO4E3nmg_uJlZOfOP"
+          echo " - Ping enviado a Supabase $(date)"
