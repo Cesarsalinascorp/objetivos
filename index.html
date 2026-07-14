@@ -666,11 +666,14 @@ const objData={
         {key:'trafico_calidad',lbl:'Crecimiento tráfico calidad (%)',meta:25,meta_lbl:'Meta: 25%',tipo:'acum',inicio:6},
         {key:'leads',lbl:'Leads acumulados en SF',meta:5000,meta_lbl:'Meta: 5.000',tipo:'acum',inicio:6}]}
     ]},
-    {id:'c3',num:3,titulo:'Mailing Médicos — cumplimiento Gantt y cuidado IP (roja → verde) hasta traspaso PM',open:false,subs:[
-      {id:'c3a',titulo:'≥1 envío por UNE mensual (6 UNEs), IP recuperándose roja → amarilla/verde en ISPs con +120K envíos',peso:80,une_detalle:true,campos:[
-        {key:'envios_une',lbl:'UNEs con envío este mes (meta: 6 de 6)',meta:6,meta_lbl:'Meta: 6 UNEs con ≥1 envío',tipo:'puntual',inicio:1,
-         hint:'Ingresa cuántas de las 6 UNEs tuvieron al menos 1 envío este mes. Las 6 UNEs son: OFTA, CARDIO, INF/RES, NEU, GAS/GUN, OTC. Meta mínima: 6.'},
-        {key:'ip_estado',lbl:'Reputación IP de envíos',meta:4,meta_lbl:'Meta: Buena (4). Escala: 1=Pésima 2=Mala 3=Normal 4=Buena',tipo:'select',inicio:1,
+    {id:'c3',num:3,titulo:'Mailing Médicos — cumplimiento Gantt y cuidado IP (roja → verde) hasta traspaso PM',open:false,visInicio:2,subs:[
+      {id:'c3a',titulo:'≥1 envío por UNE mensual (5 UNEs), IP recuperándose roja → amarilla/verde en ISPs con +120K envíos',peso:80,une_detalle:true,une_lista:[
+        {key:'une_ofta',lbl:'OFTA'},{key:'une_otc',lbl:'OTC'},{key:'une_inf',lbl:'INF'},
+        {key:'une_gun',lbl:'GUN'},{key:'une_neu',lbl:'NEU'}
+      ],campos:[
+        {key:'envios_une',lbl:'UNEs con envío este mes (meta: 5 de 5)',meta:5,meta_lbl:'Meta: 5 UNEs con ≥1 envío',tipo:'puntual',inicio:2,
+         hint:'Ingresa cuántas de las 5 UNEs tuvieron al menos 1 envío este mes. Las 5 UNEs son: OFTA, OTC, INF, GUN, NEU. Meta mínima: 5.'},
+        {key:'ip_estado',lbl:'Reputación IP de envíos',meta:4,meta_lbl:'Meta: Buena (4). Escala: 1=Pésima 2=Mala 3=Normal 4=Buena',tipo:'select',inicio:2,
          opciones:['Pésima','Mala','Normal','Buena'],
          hint:'Selecciona el estado actual de la reputación IP en los ISPs con más de 120K envíos.'}]},
             {id:'c3b',titulo:'Alineación 360° UNEs principales ≥90% — OFTA, CARDIO, INF/RES, NEU',peso:10,campos:[
@@ -1165,14 +1168,15 @@ function renderPerfilCard(pd,p){
   const initials=pd.nombre.slice(0,2).toUpperCase();
 
   // Calcular cumplimiento global (promedio ponderado de todos los objetivos)
+  const objsVisibles=pd.objetivos.filter(obj=>subVisibleEnMes(obj,currentMonth));
   let sumAvance=0;
-  pd.objetivos.forEach(obj=>sumAvance+=avanceAnualObj(obj,p));
-  const globalPct=Math.round(sumAvance/pd.objetivos.length);
+  objsVisibles.forEach(obj=>sumAvance+=avanceAnualObj(obj,p));
+  const globalPct=Math.round(sumAvance/objsVisibles.length);
   const globalSem=semAnual(globalPct,tiempo);
   const globalColor=globalSem==='sobre'?'#534AB7':globalSem==='verde'?'#639922':globalSem==='amarillo'?'#EF9F27':globalSem==='rojo'?'#E24B4A':'#B4B2A9';
 
   let objsHtml='';
-  pd.objetivos.forEach(obj=>{
+  objsVisibles.forEach(obj=>{
     const avance=avanceAnualObj(obj,p);
     const sem=semAnual(avance,tiempo);
     const color=sem==='sobre'?'#534AB7':sem==='verde'?'#639922':sem==='amarillo'?'#EF9F27':sem==='rojo'?'#E24B4A':'#B4B2A9';
@@ -1223,7 +1227,7 @@ function renderAnualPanel(pd,p){
   if(!pd||!pd.objetivos.length){anualEl.innerHTML='';return;}
   const tiempo=tiempoAnual(currentMonth);
   let rowsHtml='';
-  pd.objetivos.forEach(obj=>{
+  pd.objetivos.filter(obj=>subVisibleEnMes(obj,currentMonth)).forEach(obj=>{
     const avance=avanceAnualObj(obj,p);
     const sem=semAnual(avance,tiempo);
     const dotColor=sem==='sobre'?'#534AB7':sem==='verde'?'#639922':sem==='amarillo'?'#EF9F27':sem==='rojo'?'#E24B4A':'#B4B2A9';
@@ -1273,6 +1277,7 @@ function renderObjetivos(){
   const tiempo=tiempoAnual(currentMonth);
   let sv=0,sa=0,sr=0,html='';
   pd.objetivos.forEach(obj=>{
+    if(!subVisibleEnMes(obj,currentMonth)) return; // objetivo completo fuera de su ventana de fechas
     const isOpen=openObjs[obj.id]!==undefined?openObjs[obj.id]:obj.open;
     const sem=semObj(obj,currentPerson,currentMonth);
     if(sem==='verde')sv++;else if(sem==='amarillo')sa++;else if(sem==='rojo')sr++;
@@ -1318,7 +1323,7 @@ function renderObjetivos(){
         </div>`;
       }
       if(sub.une_detalle){
-        const unes=[
+        const unes=sub.une_lista||[
           {key:'une_ofta',lbl:'OFTA'},{key:'une_car',lbl:'CAR'},{key:'une_neu',lbl:'NEU'},
           {key:'une_inf',lbl:'INF'},{key:'une_resp',lbl:'RESP'},{key:'une_gas',lbl:'GAS'},
           {key:'une_gun',lbl:'GUN'},{key:'une_otc',lbl:'OTC'}
