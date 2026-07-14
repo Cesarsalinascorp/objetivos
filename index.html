@@ -692,7 +692,7 @@ const objData={
         {key:'objetivos_con_insights',lbl:'Objetivos con insights y recomendaciones (%)',meta:80,meta_lbl:'Meta: 80% con insights',tipo:'puntual',inicio:6},
         {key:'proyectos_nuevos',lbl:'Proyectos nuevos de automatización/innovación (sobrecumplimiento)',meta:1,meta_lbl:'Meta: ≥1 = sobrecumplimiento',tipo:'acum',inicio:6}]}
     ]},
-    {id:'c5',num:5,titulo:'Arquitectura — UATs, migración, Tags + Looker para toma de decisiones',open:false,subs:[
+    {id:'c5',num:5,titulo:'Arquitectura — UATs, migración, Tags + Looker para toma de decisiones',open:false,activo:false,subs:[
       {id:'c5a',titulo:'Recibir UATs de TI y dar feedback ≥90% para aprobación de migración con validación jefatura y comercial',peso:25,campos:[
         {key:'uat_feedback',lbl:'Feedback entregado a TI (%)',meta:90,meta_lbl:'Meta: ≥90%',tipo:'acum',inicio:1}]},
       {id:'c5b',titulo:'Apoyo migración nueva arquitectura digital con análisis de data para toma de decisiones, aprobado por jefatura',peso:25,campos:[
@@ -866,6 +866,7 @@ function setONota(p,m,sid,v){cloudSet(`onota_${p}_m${m}_${sid}`,v); showToast();
    Ej: visInicio:7, visFreq:2 → visible en jul(7), sep(9), nov(11)
 */
 function subVisibleEnMes(sub, m){
+  if(sub.activo===false) return false; // opcional / aún no iniciado: oculto y fuera de la ponderación en todos los meses
   if(!sub.visInicio) return true; // sin filtro configurado = siempre visible
   const fin = sub.visFin || 12;
   if(m < sub.visInicio || m > fin) return false;
