@@ -688,13 +688,16 @@ const objData={
         {key:'leads',lbl:'Leads acumulados en SF',meta:5000,meta_lbl:'Meta: 5.000',tipo:'acum',inicio:6}]}
     ]},
     {id:'c3',num:3,titulo:'Mailing Médicos — cumplimiento Gantt y cuidado IP (roja → verde) hasta traspaso PM',open:false,visInicio:2,subs:[
-      {id:'c3a',titulo:'≥1 envío por UNE mensual (7 UNEs), IP recuperándose roja → amarilla/verde en ISPs con +120K envíos',peso:80,une_detalle:true,une_lista:[
+      {id:'c3a',titulo:'≥1 envío por UNE mensual (5 UNEs), IP recuperándose roja → amarilla/verde en ISPs con +120K envíos',peso:80,une_detalle:true,une_lista:[
+        {key:'une_ofta',lbl:'OFTA'},{key:'une_otc',lbl:'OTC'},{key:'une_inf',lbl:'INF'},
+        {key:'une_gun',lbl:'GUN'},{key:'une_neu',lbl:'NEU'}
+      ],une_lista_mes:{3:[
         {key:'une_ofta',lbl:'OFTA'},{key:'une_car',lbl:'CAR'},{key:'une_inf',lbl:'INF'},
         {key:'une_neu',lbl:'NEU'},{key:'une_gun',lbl:'GUN'},{key:'une_gas',lbl:'GAS'},
-        {key:'une_otc',lbl:'OTC'},{key:'une_marca_saval',lbl:'Marca SAVAL',soloMes:3}
-      ],campos:[
-        {key:'envios_une',lbl:'UNEs con envío este mes',meta:7,meta_lbl:'Meta: 7 UNEs con ≥1 envío (8 en marzo, incluye Marca SAVAL)',tipo:'puntual',inicio:2,
-         hint:'Se calcula automáticamente desde el detalle de abajo. Las 7 UNEs regulares son: OFTA, CAR, INF, NEU, GUN, GAS, OTC. En marzo se suma además Marca SAVAL (8 en total ese mes).'},
+        {key:'une_otc',lbl:'OTC'},{key:'une_marca_saval',lbl:'Marca SAVAL'}
+      ]},campos:[
+        {key:'envios_une',lbl:'UNEs con envío este mes',meta:5,meta_lbl:'Meta: 5 UNEs con ≥1 envío (8 en marzo: se suman CAR, GAS y Marca SAVAL)',tipo:'puntual',inicio:2,
+         hint:'Se calcula automáticamente desde el detalle de abajo. Las 5 UNEs regulares son: OFTA, OTC, INF, GUN, NEU. Solo en marzo la lista cambia a 8: OFTA, CAR, INF, NEU, GUN, GAS, OTC y Marca SAVAL.'},
         {key:'ip_estado',lbl:'Reputación IP de envíos',meta:4,meta_lbl:'Meta: Buena (4). Escala: 1=Pésima 2=Mala 3=Normal 4=Buena',tipo:'select',inicio:2,
          opciones:['Pésima','Mala','Normal','Buena'],
          hint:'Selecciona el estado actual de la reputación IP en los ISPs con más de 120K envíos.'}]},
@@ -1384,12 +1387,12 @@ function renderObjetivos(){
         </div>`;
       }
       if(sub.une_detalle){
-        const unesTodas=sub.une_lista||[
+        const unesTodas=(sub.une_lista_mes&&sub.une_lista_mes[currentMonth])||sub.une_lista||[
           {key:'une_ofta',lbl:'OFTA'},{key:'une_car',lbl:'CAR'},{key:'une_neu',lbl:'NEU'},
           {key:'une_inf',lbl:'INF'},{key:'une_resp',lbl:'RESP'},{key:'une_gas',lbl:'GAS'},
           {key:'une_gun',lbl:'GUN'},{key:'une_otc',lbl:'OTC'}
         ];
-        // Filtrar UNEs que solo aplican en un mes específico (ej. Marca SAVAL, solo marzo)
+        // Filtrar UNEs que solo aplican en un mes específico (por si alguna lista base usa soloMes)
         const unes=unesTodas.filter(u=>!u.soloMes||u.soloMes===currentMonth);
         let totalEnvios=0, unesConEnvio=0;
         let cellsHtml=unes.map(u=>{
