@@ -1194,6 +1194,7 @@ function avanceAnualPct(sub,p){
 function avanceAnualObj(obj,p){
   let total=0,peso=0;
   obj.subs.forEach(s=>{
+    if(s.visInicio && currentMonth < s.visInicio) return; // aún no arranca este sub — no penaliza el promedio
     const a=avanceAnualPct(s,p);
     total+=a*(s.peso||100);
     peso+=(s.peso||100);
