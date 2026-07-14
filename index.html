@@ -253,6 +253,7 @@ select{font-size:12px;padding:5px 10px;border-radius:var(--radius);border:0.5px 
 .view-tab{font-size:12px;padding:4px 14px;border-radius:6px;border:none;background:none;color:var(--text2);cursor:pointer}
 .view-tab.active{background:var(--bg);color:var(--text);border:0.5px solid var(--border)}
 .toast{position:fixed;bottom:20px;right:20px;background:var(--green-light);color:#27500A;font-size:12px;padding:8px 16px;border-radius:var(--radius);border:0.5px solid #C0DD97;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+.toast.toast-warn{background:var(--red-light);color:#7A1E1E;border-color:#E9B4B3}
 
 /* ── RESPONSIVE MOBILE ── */
 @media(max-width:768px){
@@ -557,10 +558,11 @@ function sbWriteHeaders(){
 
 // Escritura: actualiza caché local al instante y encola sync a Supabase (solo si es admin)
 function cloudSet(key,value){
-  if(!isAdmin){ return; } // bloqueo en frontend; el backend también lo bloquea via RLS
+  if(!isAdmin){ return false; } // bloqueo en frontend; el backend también lo bloquea via RLS
   cloudStore[key]=value;
   syncQueue.add(key);
   scheduleSync();
+  return true;
 }
 
 function cloudDelete(key){
@@ -631,7 +633,8 @@ function showSection(id,btn){
   btn.classList.add('active');
   if(id==='gestor')renderGestor();
 }
-function showToast(){const t=document.getElementById('toast');t.style.opacity='1';setTimeout(()=>t.style.opacity='0',1500)}
+function showToast(){const t=document.getElementById('toast');t.className='toast';t.textContent='Guardado ✓';t.style.opacity='1';setTimeout(()=>t.style.opacity='0',1500)}
+function showAuthWarning(){const t=document.getElementById('toast');t.className='toast toast-warn';t.textContent='⚠ No hay sesión activa — este cambio NO se guardó. Inicia sesión de nuevo.';t.style.opacity='1';setTimeout(()=>t.style.opacity='0',3500)}
 function fmt(d){return d?d.split('-').reverse().join('/'):'—'}
 
 /* ════════ OBJETIVOS ════════ */
@@ -837,7 +840,7 @@ const objData={
 
 function osk(p,m,id,k){return`obj_${p}_m${m}_${id}_${k}`}
 function getOV(p,m,id,k){return cloudGet(osk(p,m,id,k));}
-function setOV(p,m,id,k,v){cloudSet(osk(p,m,id,k),v); showToast();}
+function setOV(p,m,id,k,v){const ok=cloudSet(osk(p,m,id,k),v); if(ok) showToast(); else showAuthWarning();}
 function saveRec(p,m,id,k,v){cloudSet(osk(p,m,id,k),v);}
 function toggleEntregable(p,m,subid,key){
   const done=getOV(p,m,subid,key+'_done')==='1';
@@ -851,7 +854,7 @@ function toggleEntregable(p,m,subid,key){
   renderObjetivos();
 }
 function getONota(p,m,sid){return cloudGet(`onota_${p}_m${m}_${sid}`);}
-function setONota(p,m,sid,v){cloudSet(`onota_${p}_m${m}_${sid}`,v); showToast();}
+function setONota(p,m,sid,v){const ok=cloudSet(`onota_${p}_m${m}_${sid}`,v); if(ok) showToast(); else showAuthWarning();}
 
 /* ── Meta esperada proporcional ──
    acum: la meta se distribuye linealmente entre inicio y dic (mes 12)
@@ -1545,8 +1548,8 @@ function gload(){
   }catch(e){gprojects=JSON.parse(JSON.stringify(DEFAULT_PROJECTS));}
 }
 function gsave(){
-  cloudSet('saval_gestor_v3', JSON.stringify({projects:gprojects,pid:gpid,sid:gsid}));
-  showToast();
+  const ok=cloudSet('saval_gestor_v3', JSON.stringify({projects:gprojects,pid:gpid,sid:gsid}));
+  if(ok) showToast(); else showAuthWarning();
 }
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function getPct(p){if(!p.subs.length)return 0;return Math.round(p.subs.filter(s=>s.done).length/p.subs.length*100)}
