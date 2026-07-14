@@ -1328,10 +1328,11 @@ function renderObjetivos(){
           {key:'une_inf',lbl:'INF'},{key:'une_resp',lbl:'RESP'},{key:'une_gas',lbl:'GAS'},
           {key:'une_gun',lbl:'GUN'},{key:'une_otc',lbl:'OTC'}
         ];
-        let totalEnvios=0;
+        let totalEnvios=0, unesConEnvio=0;
         let cellsHtml=unes.map(u=>{
           const v=parseInt(getOV(currentPerson,currentMonth,sub.id,u.key))||0;
           totalEnvios+=v;
+          if(v>0) unesConEnvio++;
           return `<div class="une-cell">
             <div class="une-lbl">${u.lbl}</div>
             <input class="une-input" type="number" min="0" value="${v||''}" placeholder="0"
@@ -1339,6 +1340,12 @@ function renderObjetivos(){
               title="Mailings enviados a ${u.lbl} este mes">
           </div>`;
         }).join('');
+        // Sincronizar automáticamente el campo "envios_une" (conteo de UNEs con ≥1 envío)
+        // en vez de exigir que se ingrese a mano por separado.
+        const campoEnviosUne=sub.campos.find(c=>c.key==='envios_une');
+        if(campoEnviosUne && getOV(currentPerson,currentMonth,sub.id,'envios_une')!==String(unesConEnvio)){
+          setOV(currentPerson,currentMonth,sub.id,'envios_une',String(unesConEnvio));
+        }
         uneDetalleHtml=`<div style="margin-top:8px">
           <div style="font-size:10px;color:var(--text3);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.04em">Detalle mailings por UNE este mes</div>
           <div class="une-grid">
@@ -1390,7 +1397,9 @@ function renderObjetivos(){
             const selColor=selVal===0?'var(--text3)':selVal>=4?'#639922':selVal>=3?'var(--amber)':selVal>=2?'#E97B2E':'var(--red)';
             camposHtml+=`<div class="metric-box"><div class="metric-lbl">${c.lbl}</div><div class="metric-meta">${c.meta_lbl}</div>${hintHtml}<select class="metric-input" style="color:${selColor};font-weight:${selVal>0?'500':'normal'}" onchange="setOV('${currentPerson}',${currentMonth},'${sub.id}','${c.key}',this.value);renderObjetivos()"><option value="">Seleccionar...</option>${selOpts}</select></div>`;
           } else {
-            camposHtml+=`<div class="metric-box"><div class="metric-lbl">${c.lbl}</div><div class="metric-meta">${c.meta_lbl}</div>${hintHtml}<input class="metric-input" type="number" step="any" value="${v}" placeholder="Ingresar valor numérico..." oninput="setOV('${currentPerson}',${currentMonth},'${sub.id}','${c.key}',this.value)" onchange="renderObjetivos()"></div>`;
+            const esAutoUne = sub.une_detalle && c.key==='envios_une';
+            const inputAttrs = esAutoUne ? 'readonly title="Se calcula automáticamente desde el detalle de UNEs abajo"' : `oninput="setOV('${currentPerson}',${currentMonth},'${sub.id}','${c.key}',this.value)" onchange="renderObjetivos()"`;
+            camposHtml+=`<div class="metric-box"><div class="metric-lbl">${c.lbl}</div><div class="metric-meta">${c.meta_lbl}</div>${hintHtml}<input class="metric-input" type="number" step="any" value="${v}" placeholder="Ingresar valor numérico..." ${inputAttrs} style="${esAutoUne?'background:var(--bg3);cursor:not-allowed':''}"></div>`;
           }
         }
       });
