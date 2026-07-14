@@ -588,11 +588,26 @@ async function flushSyncQueue(){
       headers:{...sbWriteHeaders(),'Prefer':'resolution=merge-duplicates'},
       body:JSON.stringify(rows)
     });
-    if(!res.ok){ console.error('Supabase rechazó la escritura (¿no autenticado?):', res.status); return; }
+    if(!res.ok){
+      let detalle='';
+      try{ detalle=(await res.json()).message||''; }catch(e){}
+      console.error('Supabase rechazó la escritura:', res.status, detalle);
+      showSyncError(res.status, detalle);
+      return;
+    }
     showCloudSynced();
   }catch(e){
     console.error('Error sincronizando con Supabase:',e);
+    showSyncError(0, e.message||'error de red');
   }
+}
+
+function showSyncError(status, detalle){
+  const t=document.getElementById('toast');
+  t.className='toast toast-warn';
+  t.textContent=`⚠ No se pudo guardar en Supabase (${status||'red'}${detalle?': '+detalle:''}). Tu sesión puede haber expirado — vuelve a iniciar sesión.`;
+  t.style.opacity='1';
+  setTimeout(()=>t.style.opacity='0',5000);
 }
 
 async function syncDeleteRemote(key){
@@ -1171,6 +1186,26 @@ function semAnual(avance,tiempo){
   return'rojo';
 }
 
+// Cumplimiento de un objetivo según el modo de vista activo (Mes = solo este mes, Acumulado = ritmo anual)
+function avanceSegunVista(obj,p){
+  if(vistaMode==='acum') return avanceAnualObj(obj,p);
+  let total=0,peso=0;
+  obj.subs.forEach(s=>{
+    if(!subVisibleEnMes(s,currentMonth)) return;
+    total+=avancePct(s,p,currentMonth)*(s.peso||100);
+    peso+=(s.peso||100);
+  });
+  return peso>0?Math.round(total/peso):0;
+}
+function semSegunVista(avance,tiempo){
+  if(vistaMode==='acum') return semAnual(avance,tiempo);
+  if(avance===0) return 'gris';
+  if(avance>=100) return 'sobre';
+  if(avance>=90) return 'verde';
+  if(avance>=70) return 'amarillo';
+  return 'rojo';
+}
+
 function renderPerfilCard(pd,p){
   const el=document.getElementById('perfil-card');
   if(!pd||!pd.objetivos.length){el.innerHTML='';return;}
@@ -1185,23 +1220,29 @@ function renderPerfilCard(pd,p){
   // Calcular cumplimiento global (promedio ponderado de todos los objetivos)
   const objsVisibles=pd.objetivos.filter(obj=>subVisibleEnMes(obj,currentMonth));
   let sumAvance=0;
-  objsVisibles.forEach(obj=>sumAvance+=avanceAnualObj(obj,p));
+  objsVisibles.forEach(obj=>sumAvance+=avanceSegunVista(obj,p));
   const globalPct=Math.round(sumAvance/objsVisibles.length);
-  const globalSem=semAnual(globalPct,tiempo);
+  const globalSem=semSegunVista(globalPct,tiempo);
   const globalColor=globalSem==='sobre'?'#534AB7':globalSem==='verde'?'#639922':globalSem==='amarillo'?'#EF9F27':globalSem==='rojo'?'#E24B4A':'#B4B2A9';
 
   let objsHtml='';
   objsVisibles.forEach(obj=>{
-    const avance=avanceAnualObj(obj,p);
-    const sem=semAnual(avance,tiempo);
+    const avance=avanceSegunVista(obj,p);
+    const sem=semSegunVista(avance,tiempo);
     const color=sem==='sobre'?'#534AB7':sem==='verde'?'#639922':sem==='amarillo'?'#EF9F27':sem==='rojo'?'#E24B4A':'#B4B2A9';
     const tagCl='oa-'+sem;
     const tagTxt=sem==='sobre'?'Sobre meta':sem==='verde'?'En línea':sem==='amarillo'?'Rezagado':sem==='rojo'?'En riesgo':'Sin datos';
     const gap=avance-tiempo;
-    const brechaStr=sem==='gris'?'Sin datos ingresados':
-      sem==='sobre'?`+${avance-100}pp sobre meta anual`:
-      gap>=0?`+${gap}pp vs ritmo esperado`:
-      `${gap}pp vs ritmo esperado · ${Math.abs(gap)}pp de brecha`;
+    const brechaStr=vistaMode==='acum'
+      ? (sem==='gris'?'Sin datos ingresados':
+         sem==='sobre'?`+${avance-100}pp sobre meta anual`:
+         gap>=0?`+${gap}pp vs ritmo esperado`:
+         `${gap}pp vs ritmo esperado · ${Math.abs(gap)}pp de brecha`)
+      : (sem==='gris'?'Sin datos este mes':
+         sem==='sobre'?'Sobrecumplido este mes':
+         sem==='verde'?'Al día este mes':
+         sem==='amarillo'?'Por debajo de la meta este mes':
+         'Lejos de la meta este mes');
     const barW=Math.min(100,avance);
     objsHtml+=`<div class="pobj-row">
       <div class="pobj-top">
@@ -1212,7 +1253,7 @@ function renderPerfilCard(pd,p){
       <div class="pobj-right">
         <div class="pobj-bar-bg">
           <div class="pobj-bar-fill" style="width:${barW}%;background:${color}"></div>
-          <div class="pobj-marker" style="left:${Math.min(tiempo,98)}%"></div>
+          ${vistaMode==='acum'?`<div class="pobj-marker" style="left:${Math.min(tiempo,98)}%"></div>`:''}
         </div>
         <span class="pobj-pct" style="color:${color}">${avance}%</span>
         <span class="pobj-brecha">${brechaStr}</span>
@@ -1226,11 +1267,11 @@ function renderPerfilCard(pd,p){
       <div class="perfil-avatar" style="background:${av.bg};color:${av.text}">${initials}</div>
       <div>
         <div class="perfil-name">${pd.nombre}</div>
-        <div class="perfil-mes">${vistaMode==='acum'?'Acumulado Ene → '+MESES[currentMonth]:MESES[currentMonth]} ${new Date().getFullYear()} · Línea morada = ritmo esperado (${tiempo}%)</div>
+        <div class="perfil-mes">${vistaMode==='acum'?'Acumulado Ene → '+MESES[currentMonth]+' '+new Date().getFullYear()+' · Línea morada = ritmo esperado ('+tiempo+'%)':'Solo '+MESES[currentMonth]+' '+new Date().getFullYear()}</div>
       </div>
       <div class="perfil-global">
         <div class="perfil-global-n" style="color:${globalColor}">${globalPct}%</div>
-        <div class="perfil-global-l">cumplimiento global</div>
+        <div class="perfil-global-l">${vistaMode==='acum'?'cumplimiento global (anual)':'cumplimiento del mes'}</div>
       </div>
     </div>
     <div class="perfil-grid">${objsHtml}</div>
