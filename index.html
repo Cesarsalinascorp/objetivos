@@ -90,6 +90,18 @@ select{font-size:12px;padding:5px 10px;border-radius:var(--radius);border:0.5px 
 
 /* ── CUADRO FIJO CUMPLIMIENTO PERSONAL ── */
 .perfil-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:12px}
+.aprend-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:12px}
+.aprend-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.aprend-sub{font-size:10px;color:var(--text3);margin-bottom:10px}
+.aprend-row{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-top:0.5px solid var(--border)}
+.aprend-row:first-of-type{border-top:none}
+.aprend-badge{font-size:9px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.aprend-badge.no-iniciado{background:var(--gray-light);color:#666}
+.aprend-badge.en-curso{background:var(--amber-light);color:#7A4A0A}
+.aprend-badge.completado{background:var(--green-light);color:#27500A}
+.aprend-body{flex:1;min-width:0}
+.aprend-obj{font-size:11px;font-weight:500;color:var(--text)}
+.aprend-nota{font-size:10.5px;color:var(--text2);margin-top:1px;line-height:1.4}
 .perfil-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .perfil-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;flex-shrink:0}
 .perfil-name{font-size:14px;font-weight:500;color:var(--text)}
@@ -460,6 +472,7 @@ function updateAdminUI(){
     <div class="sum-card"><div class="sum-n" id="s-rojo" style="color:#E24B4A">0</div><div class="sum-l">En riesgo</div></div>
   </div>
   <div id="perfil-card"></div>
+  <div id="aprendizajes-panel"></div>
   <div id="anual-panel"></div>
   <div id="obj-panel"></div>
 </div>
@@ -1155,22 +1168,23 @@ function alertMsg(sub,p,m,mes){
 function tiempoAnual(m){return Math.round(m/12*100)}
 
 // Calcula avance ANUAL acumulado de un sub-objetivo (suma todos los meses hasta currentMonth)
-function avanceAnualPct(sub,p){
+function avanceAnualPct(sub,p,finMes){
+  finMes=finMes||12;
   let vals=[];
   sub.campos.forEach(c=>{
     if(c.tipo==='select') return; // IP solo informativo, no pondera anual
     const inicio=c.inicio||1;
     if(c.tipo==='entregable'){
-      const mesesTotal=12-inicio+1;
+      const mesesTotal=finMes-inicio+1;
       let completados=0;
-      for(let m=inicio;m<=12;m++){
+      for(let m=inicio;m<=finMes;m++){
         if(getOV(p,m,sub.id,c.key+'_done')==='1') completados++;
       }
       vals.push(Math.round(completados/mesesTotal*100));
     } else if(c.tipo==='acum'){
       // Acumulativo: el valor crece mes a mes hacia una meta final anual — se mide el mejor valor vs esa meta.
       let bestV=0;
-      for(let m=1;m<=currentMonth;m++){
+      for(let m=1;m<=Math.min(currentMonth,finMes);m++){
         const v=parseFloat(getOV(p,m,sub.id,c.key));
         if(!isNaN(v)&&v>0) bestV=Math.max(bestV,v/c.meta*100);
       }
@@ -1178,9 +1192,9 @@ function avanceAnualPct(sub,p){
     } else {
       // puntual / alin_pct: meta se re-evalúa cada mes (no es acumulativa), así que se mide
       // igual que un entregable — meses cumplidos sobre meses totales del período, no "¿alguna vez?".
-      const mesesTotal=12-inicio+1;
+      const mesesTotal=finMes-inicio+1;
       let completados=0;
-      for(let m=inicio;m<=12;m++){
+      for(let m=inicio;m<=finMes;m++){
         const v=parseFloat(getOV(p,m,sub.id,c.key));
         if(!isNaN(v)&&v>0&&v>=c.meta) completados++;
       }
@@ -1192,10 +1206,11 @@ function avanceAnualPct(sub,p){
 
 // Calcula avance anual promedio de un objetivo (promedio de sus sub-objetivos ponderado)
 function avanceAnualObj(obj,p){
+  const finMes=obj.visFin||12;
   let total=0,peso=0;
   obj.subs.forEach(s=>{
     if(s.visInicio && currentMonth < s.visInicio) return; // aún no arranca este sub — no penaliza el promedio
-    const a=avanceAnualPct(s,p);
+    const a=avanceAnualPct(s,p,finMes);
     total+=a*(s.peso||100);
     peso+=(s.peso||100);
   });
@@ -1230,6 +1245,60 @@ function semSegunVista(avance,tiempo){
   if(avance>=90) return 'verde';
   if(avance>=70) return 'amarillo';
   return 'rojo';
+}
+
+// Analisis rapido del mes: para cada objetivo visible, calcula si esta "no iniciado",
+// "en curso" o "completado" ESTE mes puntual (sin importar el toggle Mes/Acumulado activo),
+// y arma una nota corta con lo que falta o si va bien.
+function renderAprendizajes(pd,p){
+  const el=document.getElementById('aprendizajes-panel');
+  if(!pd||!pd.objetivos.length){el.innerHTML='';return;}
+  const m=currentMonth;
+  const prevFrom=currentMonthFrom;
+  currentMonthFrom=m; // forzar calculo "solo este mes", independiente del toggle Mes/Acumulado
+  let rowsHtml='';
+  pd.objetivos.filter(obj=>subVisibleEnMes(obj,m)).forEach(obj=>{
+    let totalCampos=0, conDato=0, sumaPct=0, pesoTotal=0, subsPendientes=[];
+    obj.subs.forEach(s=>{
+      if(!subVisibleEnMes(s,m)) return;
+      const pct=avancePct(s,p,m);
+      sumaPct+=pct*(s.peso||100);
+      pesoTotal+=(s.peso||100);
+      let subTieneDato=false;
+      s.campos.forEach(c=>{
+        if(c.tipo==='select') return;
+        totalCampos++;
+        const v=getOV(p,m,s.id,c.key);
+        if(v && v!=='0' && v!==''){ conDato++; subTieneDato=true; }
+      });
+      if(!subTieneDato) subsPendientes.push(s.titulo.split('—')[0].trim());
+    });
+    const avance=pesoTotal?Math.round(sumaPct/pesoTotal):0;
+    let estadoCl, estadoTxt, nota;
+    if(conDato===0){
+      estadoCl='no-iniciado'; estadoTxt='No iniciado';
+      nota=`Aún no hay datos cargados para ${MESES[m]}.`;
+    } else if(avance>=100){
+      estadoCl='completado'; estadoTxt='Completado';
+      nota=`Meta de ${MESES[m]} cumplida (${avance}%).`;
+    } else {
+      estadoCl='en-curso'; estadoTxt='En curso';
+      nota=`Avance parcial (${avance}%)`+(subsPendientes.length?` — falta cargar: ${subsPendientes.slice(0,2).join(', ')}${subsPendientes.length>2?'…':''}.`:'.');
+    }
+    rowsHtml+=`<div class="aprend-row">
+      <span class="aprend-badge ${estadoCl}">${estadoTxt}</span>
+      <div class="aprend-body">
+        <div class="aprend-obj">${obj.num}. ${obj.titulo}</div>
+        <div class="aprend-nota">${nota}</div>
+      </div>
+    </div>`;
+  });
+  currentMonthFrom=prevFrom; // restaurar el toggle real
+  el.innerHTML=`<div class="aprend-card">
+    <div class="aprend-title">📋 Aprendizajes rápidos — ${MESES[m]}</div>
+    <div class="aprend-sub">Estado de cada objetivo puntual a este mes, independiente de la vista Mes/Acumulado</div>
+    ${rowsHtml||'<div style="font-size:11px;color:var(--text3)">No hay objetivos activos este mes.</div>'}
+  </div>`;
 }
 
 function renderPerfilCard(pd,p){
@@ -1357,6 +1426,7 @@ function renderObjetivos(){
     return;
   }
   renderPerfilCard(pd,currentPerson);
+  renderAprendizajes(pd,currentPerson);
   renderAnualPanel(pd,currentPerson);
   const tiempo=tiempoAnual(currentMonth);
   let sv=0,sa=0,sr=0,html='',visibleCount=0;
