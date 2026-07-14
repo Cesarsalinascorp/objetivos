@@ -718,7 +718,7 @@ const objData={
         {key:'objetivos_con_insights',lbl:'Objetivos con insights y recomendaciones (%)',meta:80,meta_lbl:'Meta: 80% con insights',tipo:'puntual',inicio:6},
         {key:'proyectos_nuevos',lbl:'Proyectos nuevos de automatización/innovación (sobrecumplimiento)',meta:1,meta_lbl:'Meta: ≥1 = sobrecumplimiento',tipo:'acum',inicio:6}]}
     ]},
-    {id:'c5',num:5,titulo:'Arquitectura — UATs, migración, Tags + Looker para toma de decisiones',open:false,activo:false,subs:[
+    {id:'c5',num:5,titulo:'Arquitectura — UATs, migración, Tags + Looker para toma de decisiones',open:false,sinPonderacion:true,subs:[
       {id:'c5a',titulo:'Recibir UATs de TI y dar feedback ≥90% para aprobación de migración con validación jefatura y comercial',peso:25,campos:[
         {key:'uat_feedback',lbl:'Feedback entregado a TI (%)',meta:90,meta_lbl:'Meta: ≥90%',tipo:'acum',inicio:1}]},
       {id:'c5b',titulo:'Apoyo migración nueva arquitectura digital con análisis de data para toma de decisiones, aprobado por jefatura',peso:25,campos:[
@@ -1242,11 +1242,12 @@ function renderPerfilCard(pd,p){
   const av=avatarColors[p]||{bg:'#F1EFE8',text:'#444'};
   const initials=pd.nombre.slice(0,2).toUpperCase();
 
-  // Calcular cumplimiento global (promedio ponderado de todos los objetivos)
+  // Calcular cumplimiento global (promedio ponderado de todos los objetivos, excluyendo los marcados sin ponderación)
   const objsVisibles=pd.objetivos.filter(obj=>subVisibleEnMes(obj,currentMonth));
+  const objsParaPromedio=objsVisibles.filter(obj=>!obj.sinPonderacion);
   let sumAvance=0;
-  objsVisibles.forEach(obj=>sumAvance+=avanceSegunVista(obj,p));
-  const globalPct=Math.round(sumAvance/objsVisibles.length);
+  objsParaPromedio.forEach(obj=>sumAvance+=avanceSegunVista(obj,p));
+  const globalPct=objsParaPromedio.length?Math.round(sumAvance/objsParaPromedio.length):0;
   const globalSem=semSegunVista(globalPct,tiempo);
   const globalColor=globalSem==='sobre'?'#534AB7':globalSem==='verde'?'#639922':globalSem==='amarillo'?'#EF9F27':globalSem==='rojo'?'#E24B4A':'#B4B2A9';
 
@@ -1274,6 +1275,7 @@ function renderPerfilCard(pd,p){
         <div class="pobj-dot" style="background:${color}"></div>
         <span class="pobj-num">${obj.num}.</span>
         <span class="pobj-title" title="${obj.titulo}">${obj.titulo}</span>
+        ${obj.sinPonderacion?'<span style="font-size:9px;color:var(--text3);background:var(--bg3);padding:1px 6px;border-radius:8px;margin-left:4px;white-space:nowrap">opcional · no pondera</span>':''}
       </div>
       <div class="pobj-right">
         <div class="pobj-bar-bg">
