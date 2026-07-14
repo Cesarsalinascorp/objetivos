@@ -645,15 +645,15 @@ const objData={
       {id:'c1a',titulo:'Digital News Chile — envío mensual antes del 22, validado con jefatura',peso:30,campos:[
         {key:'dn_chile',lbl:'DN Chile enviado antes del 22',meta:100,meta_lbl:'Meta: mensual antes del 22',tipo:'entregable',inicio:1,
          hint:'Marca completado cuando envíes el DN Chile ese mes. Agrega el link del archivo y la fecha real de envío.'}]},
-      {id:'c1b',titulo:'Digital News Ecuador — construcción (cierre junio) + entrega bimensual con 3 insights',peso:35,campos:[
-        {key:'dn_ecu',lbl:'DN Ecuador entregado',meta:100,meta_lbl:'Meta: bimensual desde junio',tipo:'entregable',inicio:6,
-         hint:'Marca completado cada vez que entregues el DN Ecuador (cada 2 meses desde junio). Agrega el link y la fecha.'},
-        {key:'insights_ecu',lbl:'Insights accionables Ecuador entregados',meta:3,meta_lbl:'Meta: 3 insights por entrega',tipo:'puntual',inicio:6,
+      {id:'c1b',titulo:'Digital News Ecuador — primera entrega en julio (semestral), luego bimensual (sep, nov)',peso:35,visInicio:7,visFin:12,visFreq:2,campos:[
+        {key:'dn_ecu',lbl:'DN Ecuador entregado',meta:100,meta_lbl:'Meta: julio, luego bimensual (sep, nov)',tipo:'entregable',inicio:7,
+         hint:'Marca completado cada vez que entregues el DN Ecuador (julio, luego cada 2 meses: septiembre, noviembre). Agrega el link y la fecha.'},
+        {key:'insights_ecu',lbl:'Insights accionables Ecuador entregados',meta:3,meta_lbl:'Meta: 3 insights por entrega',tipo:'puntual',inicio:7,
          hint:'Ingresa cuántos insights accionables incluiste en esta entrega. La meta es 3 por mercado por entrega bimensual.'}]},
-      {id:'c1c',titulo:'Digital News Costa Rica — construcción (cierre junio) + entrega bimensual con 3 insights',peso:35,campos:[
-        {key:'dn_cr',lbl:'DN Costa Rica entregado',meta:100,meta_lbl:'Meta: bimensual desde junio',tipo:'entregable',inicio:6,
-         hint:'Marca completado cada vez que entregues el DN Costa Rica (cada 2 meses desde junio). Agrega el link y la fecha.'},
-        {key:'insights_cr',lbl:'Insights accionables Costa Rica entregados',meta:3,meta_lbl:'Meta: 3 insights por entrega',tipo:'puntual',inicio:6,
+      {id:'c1c',titulo:'Digital News Costa Rica — primera entrega en julio (semestral), luego bimensual (sep, nov)',peso:35,visInicio:7,visFin:12,visFreq:2,campos:[
+        {key:'dn_cr',lbl:'DN Costa Rica entregado',meta:100,meta_lbl:'Meta: julio, luego bimensual (sep, nov)',tipo:'entregable',inicio:7,
+         hint:'Marca completado cada vez que entregues el DN Costa Rica (julio, luego cada 2 meses: septiembre, noviembre). Agrega el link y la fecha.'},
+        {key:'insights_cr',lbl:'Insights accionables Costa Rica entregados',meta:3,meta_lbl:'Meta: 3 insights por entrega',tipo:'puntual',inicio:7,
          hint:'Ingresa cuántos insights accionables incluiste en esta entrega. La meta es 3 por mercado por entrega bimensual.'}]}
     ]},
     {id:'c2',num:2,titulo:'Campaña BS 2026 — seguimiento, optimización y Looker completo antes del Q2',open:false,subs:[
@@ -856,6 +856,20 @@ function setONota(p,m,sid,v){cloudSet(`onota_${p}_m${m}_${sid}`,v); showToast();
    mesesDisp = meses del período (ej campaña BS: 6→12 = 7 meses)
    esperadoAlMes m = meta * (m - inicio + 1) / mesesDisp
 */
+/* ── Visibilidad de subtarea por fecha ──
+   visInicio: mes en que empieza a mostrarse (default: siempre visible, sin filtro)
+   visFin: mes en que deja de mostrarse (opcional, default 12)
+   visFreq: cada cuántos meses se muestra a partir de visInicio (default 1 = todos los meses)
+   Ej: visInicio:7, visFreq:2 → visible en jul(7), sep(9), nov(11)
+*/
+function subVisibleEnMes(sub, m){
+  if(!sub.visInicio) return true; // sin filtro configurado = siempre visible
+  const fin = sub.visFin || 12;
+  if(m < sub.visInicio || m > fin) return false;
+  const freq = sub.visFreq || 1;
+  return (m - sub.visInicio) % freq === 0;
+}
+
 function metaEsperada(campo, m){
   const inicio = campo.inicio || 1;
   if(m < inicio) return null; // aún no aplica
@@ -903,6 +917,7 @@ function semCampo(c, v, m){
 }
 
 function semSub(sub,p,m){
+  if(!subVisibleEnMes(sub,m)) return'gris'; // fuera de ventana de fechas/frecuencia: no aplica este mes
   let scores=[];
   sub.campos.forEach(c=>{
     if(c.tipo==='select') return;
@@ -1269,6 +1284,7 @@ function renderObjetivos(){
     const tagAnualTxt=semA==='sobre'?'🚀 Sobrecumplimiento':semA==='verde'?'En línea':semA==='amarillo'?'Rezagado':semA==='rojo'?'En riesgo':'Sin datos';
     let subsHtml='';
     obj.subs.forEach(sub=>{
+      if(!subVisibleEnMes(sub,currentMonth)) return; // fuera de ventana de fechas/frecuencia
       const ss=semSub(sub,currentPerson,currentMonth);
       const pct=avancePct(sub,currentPerson,currentMonth);
       const al=alertMsg(sub,currentPerson,currentMonth,mes);
