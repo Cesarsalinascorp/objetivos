@@ -934,9 +934,9 @@ function metaEsperada(campo, m){
    3. Si ≥ 70% → amarillo
    4. < 70% → rojo
 */
-function semCampo(c, v, m){
+function semCampo(c, v, m, subId, p){
   if(c.tipo==='entregable'){
-    const done=getOV(currentPerson,m,c._subid||'',c.key+'_done')==='1';
+    const done=getOV(p||currentPerson,m,subId||'',c.key+'_done')==='1';
     if(done) return 'verde';
     if(m < (c.inicio||1)) return 'gris';
     return 'gris';
@@ -970,7 +970,7 @@ function semSub(sub,p,m){
     if(c.tipo==='select') return;
     if(c.tipo==='alin_pct') return; // se evalúa como grupo abajo
     const v=parseFloat(getOV(p,m,sub.id,c.key));
-    scores.push(semCampo(c,v,m));
+    scores.push(semCampo(c,v,m,sub.id,p));
   });
   // Evaluar grupo alin_pct como % de cumplimiento vs target
   const alinCampos=sub.campos.filter(c=>c.tipo==='alin_pct');
