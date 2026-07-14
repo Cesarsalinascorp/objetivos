@@ -660,6 +660,14 @@ const APP_VERSION='saval2026v3';
 let currentPerson='cesar', currentMonth=now.getMonth()+1, currentMonthFrom=1, vistaMode='mes', openObjs={};
 currentPerson='cesar';
 
+// Listas de UNE reutilizables para el objetivo "Mailing Médicos" (envíos por UNE)
+const UNES_5=[{key:'une_ofta',lbl:'OFTA'},{key:'une_otc',lbl:'OTC'},{key:'une_inf',lbl:'INF'},{key:'une_gun',lbl:'GUN'},{key:'une_neu',lbl:'NEU'}];
+const UNES_7=[{key:'une_ofta',lbl:'OFTA'},{key:'une_car',lbl:'CAR'},{key:'une_inf',lbl:'INF'},{key:'une_neu',lbl:'NEU'},{key:'une_gun',lbl:'GUN'},{key:'une_gas',lbl:'GAS'},{key:'une_otc',lbl:'OTC'}];
+const UNES_8_MARZO=[{key:'une_ofta',lbl:'OFTA'},{key:'une_car',lbl:'CAR'},{key:'une_inf',lbl:'INF'},{key:'une_neu',lbl:'NEU'},{key:'une_gun',lbl:'GUN'},{key:'une_gas',lbl:'GAS'},{key:'une_otc',lbl:'OTC'},{key:'une_marca_saval',lbl:'Marca SAVAL'}];
+// Desde agosto (Juan): INF y RESP son celdas separadas pero comparten un mismo "cupo" —
+// si cualquiera de las dos tiene envío, cuenta como 1 de los 7 cupos (no como 2).
+const UNES_8_INF_RESP=[{key:'une_ofta',lbl:'OFTA'},{key:'une_car',lbl:'CAR'},{key:'une_inf',lbl:'INF',group:'inf_resp'},{key:'une_resp',lbl:'RESP',group:'inf_resp'},{key:'une_neu',lbl:'NEU'},{key:'une_gun',lbl:'GUN'},{key:'une_gas',lbl:'GAS'},{key:'une_otc',lbl:'OTC'}];
+
 const objData={
   cesar:{nombre:'César',objetivos:[
     {id:'c1',num:1,titulo:'Digital News Chile, Ecuador y Costa Rica + 3 insights por mercado',open:true,subs:[
@@ -687,21 +695,14 @@ const objData={
         {key:'trafico_calidad',lbl:'Crecimiento tráfico calidad (%)',meta:25,meta_lbl:'Meta: 25%',tipo:'acum',inicio:6},
         {key:'leads',lbl:'Leads acumulados en SF',meta:5000,meta_lbl:'Meta: 5.000',tipo:'acum',inicio:6}]}
     ]},
-    {id:'c3',num:3,titulo:'Mailing Médicos — cumplimiento Gantt y cuidado IP (roja → verde) hasta traspaso PM',open:false,visInicio:2,subs:[
-      {id:'c3a',titulo:'≥1 envío por UNE mensual (5 UNEs), IP recuperándose roja → amarilla/verde en ISPs con +120K envíos',peso:80,une_detalle:true,une_lista:[
-        {key:'une_ofta',lbl:'OFTA'},{key:'une_otc',lbl:'OTC'},{key:'une_inf',lbl:'INF'},
-        {key:'une_gun',lbl:'GUN'},{key:'une_neu',lbl:'NEU'}
-      ],une_lista_mes:{3:[
-        {key:'une_ofta',lbl:'OFTA'},{key:'une_car',lbl:'CAR'},{key:'une_inf',lbl:'INF'},
-        {key:'une_neu',lbl:'NEU'},{key:'une_gun',lbl:'GUN'},{key:'une_gas',lbl:'GAS'},
-        {key:'une_otc',lbl:'OTC'},{key:'une_marca_saval',lbl:'Marca SAVAL'}
-      ]},campos:[
-        {key:'envios_une',lbl:'UNEs con envío este mes',meta:5,meta_lbl:'Meta: 5 UNEs con ≥1 envío (8 en marzo: se suman CAR, GAS y Marca SAVAL)',tipo:'puntual',inicio:2,
-         hint:'Se calcula automáticamente desde el detalle de abajo. Las 5 UNEs regulares son: OFTA, OTC, INF, GUN, NEU. Solo en marzo la lista cambia a 8: OFTA, CAR, INF, NEU, GUN, GAS, OTC y Marca SAVAL.'},
+    {id:'c3',num:3,titulo:'Mailing Médicos — cumplimiento Gantt y cuidado IP (roja → verde) hasta traspaso PM',open:false,visInicio:2,visFin:6,subs:[
+      {id:'c3a',titulo:'≥1 envío por UNE mensual, IP recuperándose roja → amarilla/verde en ISPs con +120K envíos',peso:80,une_detalle:true,une_lista:UNES_5,une_lista_mes:{3:UNES_8_MARZO,4:UNES_7,5:UNES_7,6:UNES_7},campos:[
+        {key:'envios_une',lbl:'UNEs con envío este mes',meta:5,meta_lbl:'Meta: 5 UNEs con ≥1 envío (8 en marzo con CAR/GAS/Marca SAVAL; 7 desde abril con CAR/GAS)',tipo:'puntual',inicio:2,
+         hint:'Se calcula automáticamente desde el detalle de abajo. Febrero: 5 UNEs (OFTA, OTC, INF, GUN, NEU). Marzo: 8 (se suman CAR, GAS y Marca SAVAL). Desde abril: 7 (CAR y GAS quedan fijos, sin Marca SAVAL). Este objetivo pasa a Juan desde julio.'},
         {key:'ip_estado',lbl:'Reputación IP de envíos',meta:4,meta_lbl:'Meta: Buena (4). Escala: 1=Pésima 2=Mala 3=Normal 4=Buena',tipo:'select',inicio:2,
          opciones:['Pésima','Mala','Normal','Buena'],
          hint:'Selecciona el estado actual de la reputación IP en los ISPs con más de 120K envíos.'}]},
-            {id:'c3b',titulo:'Alineación 360° UNEs principales ≥90% — OFTA, CARDIO, INF/RES, NEU',peso:10,campos:[
+      {id:'c3b',titulo:'Alineación 360° UNEs principales ≥90% — OFTA, CARDIO, INF/RES, NEU',peso:10,campos:[
         {key:'alin_ofta',lbl:'OFTA',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:1,target:90,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con OFTA este mes.'},
         {key:'alin_cardio',lbl:'CARDIO',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:1,target:90,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con CARDIO este mes.'},
         {key:'alin_inf',lbl:'INF/RES',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:1,target:90,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con INF/RES este mes.'},
@@ -856,6 +857,23 @@ const objData={
       {id:'j5a',titulo:'Prospección con data unificada ECU y CR de visita y canales digitales',peso:100,campos:[
         {key:'medicos_prospectados',lbl:'Médicos prospectados desde benchmark',meta:500,meta_lbl:'Meta: a definir',tipo:'acum',inicio:1},
         {key:'data_unificada',lbl:'Data ECU/CR unificada (100=Sí)',meta:100,meta_lbl:'Meta: unificada',tipo:'acum',inicio:1}]}
+    ]},
+    {id:'j6',num:6,titulo:'Mailing Médicos — cumplimiento Gantt y cuidado IP (roja → verde) — traspasado desde César',open:false,visInicio:7,subs:[
+      {id:'j6a',titulo:'≥1 envío por UNE mensual, IP recuperándose roja → amarilla/verde en ISPs con +120K envíos',peso:80,une_detalle:true,une_lista:UNES_7,une_lista_mes:{8:UNES_8_INF_RESP,9:UNES_8_INF_RESP,10:UNES_8_INF_RESP,11:UNES_8_INF_RESP,12:UNES_8_INF_RESP},campos:[
+        {key:'envios_une',lbl:'UNEs con envío este mes',meta:7,meta_lbl:'Meta: 7 UNEs con ≥1 envío (desde agosto INF y RESP comparten el mismo cupo)',tipo:'puntual',inicio:7,
+         hint:'Se calcula automáticamente desde el detalle de abajo. Julio: 7 UNEs (OFTA, CAR, INF, NEU, GUN, GAS, OTC). Desde agosto se agrega RESP como celda separada de INF, pero ambas cuentan como un solo cupo — si tienes envío en cualquiera de las dos, ese cupo se marca cumplido.'},
+        {key:'ip_estado',lbl:'Reputación IP de envíos',meta:4,meta_lbl:'Meta: Buena (4). Escala: 1=Pésima 2=Mala 3=Normal 4=Buena',tipo:'select',inicio:7,
+         opciones:['Pésima','Mala','Normal','Buena'],
+         hint:'Selecciona el estado actual de la reputación IP en los ISPs con más de 120K envíos.'}]},
+      {id:'j6b',titulo:'Alineación 360° UNEs principales ≥90% — OFTA, CARDIO, INF/RES, NEU',peso:10,campos:[
+        {key:'alin_ofta',lbl:'OFTA',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:7,target:90,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con OFTA este mes.'},
+        {key:'alin_cardio',lbl:'CARDIO',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:7,target:90,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con CARDIO este mes.'},
+        {key:'alin_inf',lbl:'INF/RES',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:7,target:90,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con INF/RES este mes.'},
+        {key:'alin_neu',lbl:'NEU',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:7,target:90,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con NEU este mes.'}]},
+      {id:'j6c',titulo:'Alineación 360° UNEs secundarias ≥80% — GAS, GUN, OTC',peso:10,campos:[
+        {key:'alin_gas',lbl:'GAS',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:7,target:80,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con Gastroenterología este mes.'},
+        {key:'alin_gun',lbl:'GUN',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:7,target:80,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con Ginecología/Urología este mes.'},
+        {key:'alin_otc',lbl:'OTC',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:7,target:80,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con OTC este mes.'}]}
     ]}
   ]}
 };
@@ -1394,11 +1412,12 @@ function renderObjetivos(){
         ];
         // Filtrar UNEs que solo aplican en un mes específico (por si alguna lista base usa soloMes)
         const unes=unesTodas.filter(u=>!u.soloMes||u.soloMes===currentMonth);
-        let totalEnvios=0, unesConEnvio=0;
+        let totalEnvios=0;
+        const gruposConEnvio=new Set(); // agrupa por 'group' (ej. INF/RESP comparten cupo) o por su propia key si no tiene grupo
         let cellsHtml=unes.map(u=>{
           const v=parseInt(getOV(currentPerson,currentMonth,sub.id,u.key))||0;
           totalEnvios+=v;
-          if(v>0) unesConEnvio++;
+          if(v>0) gruposConEnvio.add(u.group||u.key);
           return `<div class="une-cell">
             <div class="une-lbl">${u.lbl}</div>
             <input class="une-input" type="number" min="0" value="${v||''}" placeholder="0"
@@ -1406,6 +1425,7 @@ function renderObjetivos(){
               title="Mailings enviados a ${u.lbl} este mes">
           </div>`;
         }).join('');
+        const unesConEnvio=gruposConEnvio.size;
         // Sincronizar automáticamente el campo "envios_une" (conteo de UNEs con ≥1 envío,
         // sobre el total de UNEs que corresponden ESTE mes — varía si hay UNEs solo-mes como Marca SAVAL)
         const campoEnviosUne=sub.campos.find(c=>c.key==='envios_une');
