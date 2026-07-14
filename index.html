@@ -656,7 +656,7 @@ const objData={
         {key:'insights_cr',lbl:'Insights accionables Costa Rica entregados',meta:3,meta_lbl:'Meta: 3 insights por entrega',tipo:'puntual',inicio:7,
          hint:'Ingresa cuántos insights accionables incluiste en esta entrega. La meta es 3 por mercado por entrega bimensual.'}]}
     ]},
-    {id:'c2',num:2,titulo:'Campaña BS 2026 — seguimiento, optimización y Looker completo antes del Q2',open:false,subs:[
+    {id:'c2',num:2,titulo:'Campaña BS 2026 — seguimiento, optimización y Looker completo antes del Q2',open:false,visInicio:5,subs:[
       {id:'c2a',titulo:'Liderar optimización semanal BS desde junio, status semanal al equipo, ≥15% mejora vs Q3/Q4 2025',peso:30,campos:[
         {key:'mejora_indicadores',lbl:'Mejora indicadores vs 2025 (%)',meta:15,meta_lbl:'Meta: ≥15%',tipo:'puntual',inicio:6},
         {key:'status_semanal',lbl:'Status semanales enviados este mes',meta:4,meta_lbl:'Meta: 4 por mes',tipo:'puntual',inicio:6}]},
@@ -686,11 +686,11 @@ const objData={
         {key:'alin_gun',lbl:'GUN',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:1,target:80,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con Ginecología/Urología este mes.'},
         {key:'alin_otc',lbl:'OTC',meta:1,meta_lbl:'≥1 envío alineado',tipo:'alin_pct',inicio:1,target:80,hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con OTC este mes.'}]}
     ]},
-    {id:'c4',num:4,titulo:'Medición 100% + recomendaciones growth al 80% de objetivos del equipo digital 2026',open:false,subs:[
+    {id:'c4',num:4,titulo:'Medición 100% + recomendaciones growth al 80% de objetivos del equipo digital 2026',open:false,visInicio:6,subs:[
       {id:'c4a',titulo:'4° status del mes: % cumplimiento de proyectos + recomendaciones growth para 80% de objetivos (sinergia equipo)',peso:100,rec_equipo:true,campos:[
-        {key:'objetivos_medidos',lbl:'Objetivos medidos (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'puntual',inicio:1},
-        {key:'objetivos_con_insights',lbl:'Objetivos con insights y recomendaciones (%)',meta:80,meta_lbl:'Meta: 80% con insights',tipo:'puntual',inicio:1},
-        {key:'proyectos_nuevos',lbl:'Proyectos nuevos de automatización/innovación (sobrecumplimiento)',meta:1,meta_lbl:'Meta: ≥1 = sobrecumplimiento',tipo:'acum',inicio:1}]}
+        {key:'objetivos_medidos',lbl:'Objetivos medidos (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'puntual',inicio:6},
+        {key:'objetivos_con_insights',lbl:'Objetivos con insights y recomendaciones (%)',meta:80,meta_lbl:'Meta: 80% con insights',tipo:'puntual',inicio:6},
+        {key:'proyectos_nuevos',lbl:'Proyectos nuevos de automatización/innovación (sobrecumplimiento)',meta:1,meta_lbl:'Meta: ≥1 = sobrecumplimiento',tipo:'acum',inicio:6}]}
     ]},
     {id:'c5',num:5,titulo:'Arquitectura — UATs, migración, Tags + Looker para toma de decisiones',open:false,subs:[
       {id:'c5a',titulo:'Recibir UATs de TI y dar feedback ≥90% para aprobación de migración con validación jefatura y comercial',peso:25,campos:[
@@ -1275,9 +1275,10 @@ function renderObjetivos(){
   renderPerfilCard(pd,currentPerson);
   renderAnualPanel(pd,currentPerson);
   const tiempo=tiempoAnual(currentMonth);
-  let sv=0,sa=0,sr=0,html='';
+  let sv=0,sa=0,sr=0,html='',visibleCount=0;
   pd.objetivos.forEach(obj=>{
     if(!subVisibleEnMes(obj,currentMonth)) return; // objetivo completo fuera de su ventana de fechas
+    visibleCount++;
     const isOpen=openObjs[obj.id]!==undefined?openObjs[obj.id]:obj.open;
     const sem=semObj(obj,currentPerson,currentMonth);
     if(sem==='verde')sv++;else if(sem==='amarillo')sa++;else if(sem==='rojo')sr++;
@@ -1430,7 +1431,7 @@ function renderObjetivos(){
     </div>`;
   });
   panel.innerHTML=html;
-  document.getElementById('s-total').textContent=pd.objetivos.length;
+  document.getElementById('s-total').textContent=visibleCount;
   document.getElementById('s-verde').textContent=sv;
   document.getElementById('s-amarillo').textContent=sa;
   document.getElementById('s-rojo').textContent=sr;
