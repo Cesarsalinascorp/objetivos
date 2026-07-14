@@ -1116,21 +1116,32 @@ function avanceAnualPct(sub,p){
   let vals=[];
   sub.campos.forEach(c=>{
     if(c.tipo==='select') return; // IP solo informativo, no pondera anual
+    const inicio=c.inicio||1;
     if(c.tipo==='entregable'){
-      const inicio=c.inicio||1;
       const mesesTotal=12-inicio+1;
       let completados=0;
       for(let m=inicio;m<=12;m++){
         if(getOV(p,m,sub.id,c.key+'_done')==='1') completados++;
       }
       vals.push(Math.round(completados/mesesTotal*100));
-    } else {
+    } else if(c.tipo==='acum'){
+      // Acumulativo: el valor crece mes a mes hacia una meta final anual — se mide el mejor valor vs esa meta.
       let bestV=0;
       for(let m=1;m<=currentMonth;m++){
         const v=parseFloat(getOV(p,m,sub.id,c.key));
         if(!isNaN(v)&&v>0) bestV=Math.max(bestV,v/c.meta*100);
       }
       vals.push(Math.min(100,Math.round(bestV)));
+    } else {
+      // puntual / alin_pct: meta se re-evalúa cada mes (no es acumulativa), así que se mide
+      // igual que un entregable — meses cumplidos sobre meses totales del período, no "¿alguna vez?".
+      const mesesTotal=12-inicio+1;
+      let completados=0;
+      for(let m=inicio;m<=12;m++){
+        const v=parseFloat(getOV(p,m,sub.id,c.key));
+        if(!isNaN(v)&&v>0&&v>=c.meta) completados++;
+      }
+      vals.push(Math.round(completados/mesesTotal*100));
     }
   });
   return vals.length?Math.round(vals.reduce((a,b)=>a+b)/vals.length):0;
