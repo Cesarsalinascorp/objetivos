@@ -705,13 +705,13 @@ const objData={
       {id:'c2b',titulo:'Dashboard Looker completo en funnel, validado y operativo antes del 30 jun 2026 con insights mensuales',peso:30,campos:[
         {key:'looker_ok',lbl:'Looker terminado y validado (100=Sí)',meta:100,meta_lbl:'Meta: 30 jun 2026',tipo:'entregable',inicio:6}]},
       {id:'c2c',titulo:'Crecimiento 25% tráfico de calidad y 5.000 nuevos leads segmentados en SF a dic 2026 (periodo base 17 jul–31 dic, vs 2025)',peso:40,campos:[
-        {key:'sesiones',lbl:'Sesiones acumuladas',meta:762691,meta_lbl:'Meta: 762.691 (base 2025: 586.685)',tipo:'acum',inicio:7,
+        {key:'sesiones',lbl:'Sesiones acumuladas',meta:762691,meta_lbl:'Meta: 762.691 (base 2025: 586.685)',tipo:'acum',inicio:6,
          hint:'Ingresa las sesiones acumuladas del periodo 17 jul–31 dic 2026. Base histórica 2025 del mismo periodo: 586.685.'},
-        {key:'usuarios_trafico',lbl:'Usuarios acumulados',meta:630011,meta_lbl:'Meta: 630.011 (base 2025: 484.624)',tipo:'acum',inicio:7,
+        {key:'usuarios_trafico',lbl:'Usuarios acumulados',meta:630011,meta_lbl:'Meta: 630.011 (base 2025: 484.624)',tipo:'acum',inicio:6,
          hint:'Ingresa los usuarios acumulados del periodo 17 jul–31 dic 2026. Base histórica 2025 del mismo periodo: 484.624.'},
-        {key:'permanencia_bs',lbl:'Duración promedio de sesión (seg)',meta:120,meta_lbl:'Meta: mantener ≥2 min (base 2025: 1:41)',tipo:'puntual',inicio:7,
-         hint:'Ingresa la duración promedio de sesión en segundos este mes (120 = 2 min). Base histórica 2025: 1:41 (101 seg).'},
-        {key:'leads',lbl:'Leads acumulados en SF',meta:5000,meta_lbl:'Meta: 5.000 (base 2025: 2.544)',tipo:'acum',inicio:7}]}
+        {key:'permanencia_bs',lbl:'Duración promedio de sesión',meta:120,meta_lbl:'Meta: mantener ≥2:00 (base 2025: 1:41)',tipo:'puntual',inicio:6,formato:'mmss',
+         hint:'Ingresa la duración promedio de sesión en formato minutos:segundos (ej: 1:32). Base histórica 2025: 1:41.'},
+        {key:'leads',lbl:'Leads acumulados en SF',meta:5000,meta_lbl:'Meta: 5.000 (base 2025: 2.544)',tipo:'acum',inicio:6}]}
     ]},
     {id:'c3',num:3,titulo:'Mailing Médicos — cumplimiento Gantt y cuidado IP (roja → verde) hasta traspaso PM',open:false,visInicio:2,visFin:6,subs:[
       {id:'c3a',titulo:'≥1 envío por UNE mensual, IP recuperándose roja → amarilla/verde en ISPs con +120K envíos',peso:80,une_detalle:true,une_lista:UNES_5,une_lista_mes:{3:UNES_8_MARZO,4:UNES_7,5:UNES_7,6:UNES_7},campos:[
@@ -905,6 +905,12 @@ const objData={
 function osk(p,m,id,k){return`obj_${p}_m${m}_${id}_${k}`}
 function getOV(p,m,id,k){return cloudGet(osk(p,m,id,k));}
 function setOV(p,m,id,k,v){const ok=cloudSet(osk(p,m,id,k),v); if(ok) showToast(); else showAuthWarning();}
+// Convierte un input de texto "m:ss" o "mm:ss" a segundos totales antes de guardar (para campos formato:'mmss')
+function setOVFromMMSS(p,m,id,k,strVal){
+  const match=(strVal||'').trim().match(/^(\d+):([0-5]?\d)$/);
+  const seg=match?(parseInt(match[1])*60+parseInt(match[2])):(parseInt(strVal)||0);
+  setOV(p,m,id,k,String(seg));
+}
 function saveRec(p,m,id,k,v){cloudSet(osk(p,m,id,k),v);}
 function toggleEntregable(p,m,subid,key){
   const done=getOV(p,m,subid,key+'_done')==='1';
@@ -1566,6 +1572,10 @@ function renderObjetivos(){
             const selVal=parseInt(v)||0;
             const selColor=selVal===0?'var(--text3)':selVal>=4?'#639922':selVal>=3?'var(--amber)':selVal>=2?'#E97B2E':'var(--red)';
             camposHtml+=`<div class="metric-box"><div class="metric-lbl">${c.lbl}</div><div class="metric-meta">${c.meta_lbl}</div>${hintHtml}<select class="metric-input" style="color:${selColor};font-weight:${selVal>0?'500':'normal'}" onchange="setOV('${currentPerson}',${currentMonth},'${sub.id}','${c.key}',this.value);renderObjetivos()"><option value="">Seleccionar...</option>${selOpts}</select></div>`;
+          } else if(c.formato==='mmss'){
+            const segTotal=parseInt(v)||0;
+            const mmss=segTotal>0?Math.floor(segTotal/60)+':'+String(segTotal%60).padStart(2,'0'):'';
+            camposHtml+=`<div class="metric-box"><div class="metric-lbl">${c.lbl}</div><div class="metric-meta">${c.meta_lbl}</div>${hintHtml}<input class="metric-input" type="text" value="${mmss}" placeholder="mm:ss (ej: 1:32)" onchange="setOVFromMMSS('${currentPerson}',${currentMonth},'${sub.id}','${c.key}',this.value);renderObjetivos()"></div>`;
           } else {
             const esAutoUne = sub.une_detalle && c.key==='envios_une';
             const inputAttrs = esAutoUne ? 'readonly title="Se calcula automáticamente desde el detalle de UNEs abajo"' : `oninput="setOV('${currentPerson}',${currentMonth},'${sub.id}','${c.key}',this.value)" onchange="renderObjetivos()"`;
