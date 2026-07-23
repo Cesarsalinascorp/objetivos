@@ -842,34 +842,40 @@ const objData={
   ]},
 
   juan:{nombre:'Juan',objetivos:[
-    {id:'j1',num:1,titulo:'Cobertura HCPs — 8K médicos + 2K QFs en Salesforce a dic 2026',open:true,visInicio:7,subs:[
-      {id:'j1a',titulo:'8.000 médicos y 2.000 QFs ingresados en SF a dic 2026',peso:100,campos:[
-        {key:'medicos_sf',lbl:'Médicos ingresados en SF',meta:8000,meta_lbl:'Meta: 8.000',tipo:'acum',inicio:7},
-        {key:'qf_sf',lbl:'QFs ingresados en SF',meta:2000,meta_lbl:'Meta: 2.000',tipo:'acum',inicio:7}]}
+    {id:'j1',num:1,titulo:'Incremento de cobertura HCP — 6K médicos (sobre 10,5K adquiridos con Equifax en 2025) + 2K QFs con calentamiento efectivo en Salesforce MKT Cloud a dic 2026',open:true,visInicio:7,subs:[
+      {id:'j1a',titulo:'6.000 médicos y 2.000 QFs incorporados y calentados en SF MKT Cloud a dic 2026',peso:100,campos:[
+        {key:'medicos_incremento',lbl:'Incremento de médicos en canales digitales',meta:6000,meta_lbl:'Meta: +6.000 médicos',tipo:'acum',inicio:7},
+        {key:'qf_sf',lbl:'QFs disponibles y calentados en SF',meta:2000,meta_lbl:'Meta: 2.000 QFs',tipo:'acum',inicio:7}]}
     ]},
-    {id:'j2',num:2,titulo:'SFMC Mailing Médicos — IP verde, OR ≥50%, CTOR ≥30%, 2 journeys/UNE',open:false,visInicio:7,subs:[
-      {id:'j2a',titulo:'IP médicos en verde en Salesforce',peso:20,campos:[
-        {key:'ip_verde',lbl:'IP médicos verde (100=Sí)',meta:100,meta_lbl:'Meta: verde',tipo:'puntual',inicio:7}]},
-      {id:'j2b',titulo:'2 journeys complejos por UNE con 3 envíos de segmentación',peso:40,campos:[
-        {key:'journeys_une',lbl:'Journeys complejos completados',meta:10,meta_lbl:'Meta: 2 x UNE',tipo:'acum',inicio:7}]},
-      {id:'j2c',titulo:'OR promedio ≥50% y CTOR ≥30%',peso:40,campos:[
-        {key:'or',lbl:'Open Rate promedio (%)',meta:50,meta_lbl:'Meta: 50%',tipo:'puntual',inicio:7},
-        {key:'ctor',lbl:'Click to Open Rate (%)',meta:30,meta_lbl:'Meta: 30%',tipo:'puntual',inicio:7}]}
-    ]},
-    {id:'j3',num:3,titulo:'Centralización BBDD médicos — SAVALnet, EMC, Marketing y Digital en SF',open:false,visInicio:7,subs:[
-      {id:'j3a',titulo:'BBDD unificada en SF con flujos cross comercial y DM a dic 2026',peso:100,campos:[
+    {id:'j3',num:2,titulo:'Centralización BBDD médicos — taxonomía unificada (SAVALnet, EMC, Marketing, Digital) en Salesforce, seguimiento semanal y flujos cross comercial/DM a dic 2026',open:false,visInicio:7,subs:[
+      {id:'j3a',titulo:'BBDD unificada en un solo software (Salesforce) con flujos cross comercial y DM a dic 2026',peso:100,campos:[
         {key:'bbdd_centralizada',lbl:'% BBDD centralizada en SF',meta:100,meta_lbl:'Meta: 100%',tipo:'acum',inicio:7},
         {key:'flujos_nuevos',lbl:'Flujos nuevos cross implementados',meta:3,meta_lbl:'Meta: ≥3 flujos',tipo:'acum',inicio:7}]}
     ]},
-    {id:'j4',num:4,titulo:'Consentimiento médico — 2ª etapa, centro de preferencias omnicanal',open:false,visInicio:7,subs:[
-      {id:'j4a',titulo:'Alinear todas las áreas SAVAL y Embajadores Digitales para continuidad omnicanal',peso:100,campos:[
-        {key:'areas_alineadas',lbl:'Áreas alineadas (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'acum',inicio:7},
-        {key:'embajadores_ok',lbl:'Embajadores incorporados (100=Sí)',meta:100,meta_lbl:'Meta: todos',tipo:'acum',inicio:7}]}
+    {id:'j4',num:3,titulo:'Consentimiento médico — apoyo 1ª etapa legal y liderazgo 2ª etapa (centro de preferencias) con plan accionable omnicanal',open:false,visInicio:7,subs:[
+      {id:'j4a',titulo:'Consentimiento médico — apoyo a líder en recopilación de canales para consentimiento',peso:40,campos:[
+        {key:'consentimiento_avance',lbl:'Avance apoyo consentimiento médico (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'acum',inicio:7}]},
+      {id:'j4b',titulo:'Centro de preferencias — plan accionable alineando todas las áreas SAVAL y Embajadores Digitales para continuidad omnicanal B2B',peso:60,campos:[
+        {key:'areas_alineadas',lbl:'Áreas SAVAL alineadas (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'acum',inicio:7},
+        {key:'embajadores_ok',lbl:'Embajadores Digitales incorporados (100=Sí)',meta:100,meta_lbl:'Meta: todos',tipo:'acum',inicio:7}]}
     ]},
-    {id:'j5',num:5,titulo:'Apoyo puentes — benchmark SAVAL y data unificada ECU/CR',open:false,visInicio:7,subs:[
+    {id:'j5',num:4,titulo:'Puentes — apoyo en levantamiento y alineación de data de médicos en canales digitales SAVAL (Chile) como benchmark para ECU/CR, apoyando la prospección de compra legal de BBDD',open:false,visInicio:7,subs:[
       {id:'j5a',titulo:'Prospección con data unificada ECU y CR de visita y canales digitales',peso:100,campos:[
         {key:'medicos_prospectados',lbl:'Médicos prospectados desde benchmark',meta:500,meta_lbl:'Meta: a definir',tipo:'acum',inicio:7},
         {key:'data_unificada',lbl:'Data ECU/CR unificada (100=Sí)',meta:100,meta_lbl:'Meta: unificada',tipo:'acum',inicio:7}]}
+    ]},
+    {id:'j2',num:5,titulo:'SFMC Mailing Médicos — IP verde, journeys por UNE, OR ≥50%/CTOR ≥30%, alineación 360 con B2C',open:false,visInicio:7,subs:[
+      {id:'j2a',titulo:'Llevar a verde la reputación de la IP de médicos en Salesforce Marketing Cloud',peso:35,campos:[
+        {key:'ip_verde',lbl:'IP médicos verde (100=Sí)',meta:100,meta_lbl:'Meta: verde',tipo:'puntual',inicio:7}]},
+      {id:'j2b',titulo:'2 journeys complejos por UNE (7 templates segmentados) perfilando MG/MI, alcanzando OR ≥50% y CTOR ≥30% entre envíos simples y journeys',peso:50,campos:[
+        {key:'journeys_une',lbl:'Journeys complejos completados',meta:10,meta_lbl:'Meta: 2 x UNE',tipo:'acum',inicio:7},
+        {key:'or',lbl:'Open Rate promedio (%)',meta:50,meta_lbl:'Meta: 50%',tipo:'puntual',inicio:7},
+        {key:'ctor',lbl:'Click to Open Rate (%)',meta:30,meta_lbl:'Meta: 30%',tipo:'puntual',inicio:7}]},
+      {id:'j2c',titulo:'Alineación 360° mailing pacientes vs médicos — UNEs principales (Infecto-Respi, Cardio, Ofta, Neurociencias) ≥90%, resto de UNEs ≥80%',peso:15,campos:[
+        {key:'alin_principales',lbl:'Alineación UNEs principales (%)',meta:90,meta_lbl:'Meta: ≥90%',tipo:'puntual',inicio:7,
+         hint:'% de alineación 360 lograda entre mailing a pacientes y médicos en las UNEs principales: Infecto-Respi, Cardio, Ofta, Neurociencias.'},
+        {key:'alin_resto',lbl:'Alineación resto de UNEs (%)',meta:80,meta_lbl:'Meta: ≥80%',tipo:'puntual',inicio:7,
+         hint:'% de alineación 360 lograda entre mailing a pacientes y médicos en el resto de las UNEs.'}]}
     ]},
     {id:'j6',num:6,titulo:'Mailing Médicos — cumplimiento Gantt y cuidado IP (roja → verde) — traspasado desde César',open:false,visInicio:7,subs:[
       {id:'j6a',titulo:'≥1 envío por UNE mensual, IP recuperándose roja → amarilla/verde en ISPs con +120K envíos',peso:80,une_detalle:true,une_lista:UNES_7,une_lista_mes:{8:UNES_8_INF_RESP,9:UNES_8_INF_RESP,10:UNES_8_INF_RESP,11:UNES_8_INF_RESP,12:UNES_8_INF_RESP},campos:[
