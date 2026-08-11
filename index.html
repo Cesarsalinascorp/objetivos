@@ -1129,7 +1129,8 @@ function alertMsg(sub,p,m,mes){
       if(c.tipo==='entregable'||c.tipo==='select') return;
       const v=parseFloat(getOV(p,m,sub.id,c.key));
       const lbl=c.lbl.replace(/— .*/,'').replace(/\(.*\)/,'').trim();
-      if(!isNaN(v)&&v>=c.meta) cumplidos.push(lbl);
+      const cumple=c.invertido?(v<=c.meta):(v>=c.meta);
+      if(!isNaN(v)&&cumple) cumplidos.push(lbl);
       else pendientes.push(lbl);
     });
     // Si son campos binarios tipo alineación (meta=1), hacer mensaje de UNEs
@@ -1151,7 +1152,7 @@ function alertMsg(sub,p,m,mes){
     const v=parseFloat(getOV(p,m,sub.id,c.key));
     const esp=metaEsperada(c,m);
     if(!isNaN(v)&&esp&&esp>0){
-      const diff=Math.round(esp-v);
+      const diff=c.invertido?Math.round(v-esp):Math.round(esp-v);
       if(diff>0)brechas.push(`${c.lbl}: faltan ${diff.toLocaleString('es-CL')} para ir en línea`);
     }
   });
