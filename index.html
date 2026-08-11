@@ -760,12 +760,15 @@ const objData={
       {id:'d2a',titulo:'Consolidar cuenta unificada AWON',peso:25,campos:[
         {key:'consolidado',lbl:'Consolidación (%)',meta:100,meta_lbl:'Meta: 100%',tipo:'acum',inicio:1}]},
       {id:'d2b',titulo:'CPC/CTR Google +10% y performance Meta +10% por Q',peso:40,campos:[
-        {key:'cpc_mejora',lbl:'Mejora CPC Google (%)',meta:10,meta_lbl:'Meta: 10%',tipo:'puntual',inicio:1},
-        {key:'ctr_mejora',lbl:'Mejora CTR Google (%)',meta:10,meta_lbl:'Meta: 10%',tipo:'puntual',inicio:1},
-        {key:'meta_mejora',lbl:'Mejora Meta (%)',meta:10,meta_lbl:'Meta: 10%',tipo:'puntual',inicio:1}]},
+        {key:'ctr_google',lbl:'CTR Google Search (%)',meta:22.34,meta_lbl:'Meta: 22,34% (base 2025: 20,31%)',tipo:'puntual',inicio:1},
+        {key:'cpc_google',lbl:'CPC Google Search (CLP)',meta:10.8,meta_lbl:'Meta: ≤$10,8 (base 2025: $12 — menor es mejor)',tipo:'puntual',inicio:1,invertido:true,
+         hint:'Ingresa el CPC promedio del mes en CLP. Como menor CPC es mejor, se considera sobrecumplido si es igual o menor a la meta.'},
+        {key:'meta_mejora',lbl:'Mejora performance Meta (%)',meta:10,meta_lbl:'Meta: 10%',tipo:'puntual',inicio:1}]},
       {id:'d2c',titulo:'Crecimiento tráfico pauta +15%, permanencia ≥2 min',peso:35,campos:[
-        {key:'trafico_crecimiento',lbl:'Crecimiento tráfico pauta (%)',meta:15,meta_lbl:'Meta: 15%',tipo:'acum',inicio:1},
-        {key:'permanencia',lbl:'Permanencia promedio (seg)',meta:120,meta_lbl:'Meta: 120 seg',tipo:'puntual',inicio:1}]}
+        {key:'sesiones_awon',lbl:'Sesiones AWON acumuladas',meta:575963,meta_lbl:'Meta: 575.963 (base 2025: 500.837)',tipo:'acum',inicio:1},
+        {key:'usuarios_awon',lbl:'Usuarios AWON acumulados',meta:404824,meta_lbl:'Meta: 404.824 (base 2025: 352.021)',tipo:'acum',inicio:1},
+        {key:'permanencia_awon',lbl:'Duración promedio AWON',meta:120,meta_lbl:'Meta: mantener ≥2:00 (base 2025: 1:49)',tipo:'puntual',inicio:1,formato:'mmss',
+         hint:'Ingresa la duración promedio en formato minutos:segundos (ej: 1:52). Base histórica 2025: 1:49.'}]}
     ]},
     {id:'d3',num:3,titulo:'Visibilidad farmacias — 15 productos/mes, digital shelf +8%',open:false,visInicio:6,subs:[
       {id:'d3a',titulo:'KWs y descripciones de 15 productos/mes, digital shelf +8%',peso:100,campos:[
@@ -986,6 +989,14 @@ function semCampo(c, v, m, subId, p){
   const esperado = metaEsperada(c, m);
   if(esperado === null) return 'gris';
   if(isNaN(v) || v === 0) return 'gris';
+  if(c.invertido){
+    // Menor es mejor (ej. CPC): "sobre" si ya está en o bajo la meta
+    if(v <= c.meta) return 'sobre';
+    const ratio = esperado / v;
+    if(ratio >= 0.9) return 'verde';
+    if(ratio >= 0.7) return 'amarillo';
+    return 'rojo';
+  }
   if(v >= c.meta) return 'sobre';
   const ratio = v / esperado;
   if(ratio >= 0.9) return 'verde';
@@ -1063,7 +1074,10 @@ function avancePct(sub,p,m){
         for(let mi=mFrom;mi<=m;mi++){
           const v=parseFloat(getOV(p,mi,sub.id,c.key));
           const esp=metaEsperada(c,mi);
-          if(!isNaN(v)&&v>0&&esp&&esp>0) puntuales.push(Math.min(120,Math.round(v/esp*100)));
+          if(!isNaN(v)&&v>0&&esp&&esp>0){
+            const ratio=c.invertido?(esp/v):(v/esp);
+            puntuales.push(Math.min(120,Math.round(ratio*100)));
+          }
         }
         if(puntuales.length>0) vals.push(Math.round(puntuales.reduce((a,b)=>a+b)/puntuales.length));
       }
@@ -1213,7 +1227,7 @@ function avanceAnualPct(sub,p,finMes){
       let completados=0;
       for(let m=inicio;m<=finMes;m++){
         const v=parseFloat(getOV(p,m,sub.id,c.key));
-        if(!isNaN(v)&&v>0&&v>=c.meta) completados++;
+        if(!isNaN(v)&&v>0&&(c.invertido?v<=c.meta:v>=c.meta)) completados++;
       }
       vals.push(Math.round(completados/mesesTotal*100));
     }
