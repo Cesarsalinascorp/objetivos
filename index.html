@@ -802,9 +802,14 @@ const objData={
     {id:'d5',num:5,titulo:'Campaña BS — PMO 2026, tráfico +25%, 5.000 leads en SF',open:false,visInicio:6,subs:[
       {id:'d5a',titulo:'PMO campaña: reporte mensual con 2 insights por UNE antes del día 15',peso:60,campos:[
         {key:'reporte',lbl:'Reporte entregado antes día 15 (100=Sí)',meta:100,meta_lbl:'Meta: entregar',tipo:'entregable',inicio:7}]},
-      {id:'d5b',titulo:'Crecimiento 25% tráfico de calidad y 5.000 leads en SF a dic 2026',peso:40,campos:[
-        {key:'trafico_calidad',lbl:'Crecimiento tráfico calidad (%)',meta:25,meta_lbl:'Meta: 25%',tipo:'acum',inicio:6},
-        {key:'leads',lbl:'Leads acumulados en SF',meta:5000,meta_lbl:'Meta: 5.000',tipo:'acum',inicio:6}]}
+      {id:'d5b',titulo:'Crecimiento 25% tráfico de calidad y 5.000 leads en SF a dic 2026 (periodo base 17 jul–31 dic, vs 2025)',peso:40,campos:[
+        {key:'sesiones',lbl:'Sesiones acumuladas',meta:762691,meta_lbl:'Meta: 762.691 (base 2025: 586.685)',tipo:'acum',inicio:6,
+         hint:'Ingresa las sesiones acumuladas del periodo 17 jul–31 dic 2026. Base histórica 2025 del mismo periodo: 586.685.'},
+        {key:'usuarios_trafico',lbl:'Usuarios acumulados',meta:630011,meta_lbl:'Meta: 630.011 (base 2025: 484.624)',tipo:'acum',inicio:6,
+         hint:'Ingresa los usuarios acumulados del periodo 17 jul–31 dic 2026. Base histórica 2025 del mismo periodo: 484.624.'},
+        {key:'permanencia_bs',lbl:'Duración promedio de sesión',meta:120,meta_lbl:'Meta: mantener ≥2:00 (base 2025: 1:41)',tipo:'puntual',inicio:6,formato:'mmss',
+         hint:'Ingresa la duración promedio de sesión en formato minutos:segundos (ej: 1:52). Base histórica 2025: 1:41.'},
+        {key:'leads',lbl:'Leads acumulados en SF',meta:5000,meta_lbl:'Meta: 5.000 (base 2025: 2.544)',tipo:'acum',inicio:6}]}
     ]}
   ]},
 
