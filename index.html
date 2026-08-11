@@ -1217,6 +1217,17 @@ function alertMsg(sub,p,m,mes){
 /* ── CUMPLIMIENTO ANUAL: helpers ── */
 // Mes actual del año → % tiempo transcurrido (mes 1 = 8.3%, mes 12 = 100%)
 function tiempoAnual(m){return Math.round(m/12*100)}
+// Ritmo esperado propio de un objetivo, segun SU ventana real (visInicio/visFin) — no el año calendario completo.
+// Ej: un objetivo que arranca en junio (ventana jun-dic = 7 meses) en julio lleva 2/7=29%, no 7/12=58% del año.
+function tiempoParaObj(obj,m){
+  if(obj.sinPonderacion) return 0;
+  const inicio=obj.visInicio||1;
+  const fin=obj.visFin||12;
+  const total=fin-inicio+1;
+  if(m<inicio) return 0;
+  const transcurrido=Math.min(m-inicio+1,total);
+  return Math.round(transcurrido/total*100);
+}
 
 // Calcula avance ANUAL acumulado de un sub-objetivo (suma todos los meses hasta currentMonth)
 function avanceAnualPct(sub,p,finMes){
@@ -1322,20 +1333,22 @@ function renderPerfilCard(pd,p){
   // Calcular cumplimiento global (promedio ponderado de todos los objetivos, excluyendo los marcados sin ponderación)
   const objsVisibles=pd.objetivos.filter(obj=>subVisibleEnMes(obj,currentMonth));
   const objsParaPromedio=objsVisibles.filter(obj=>!obj.sinPonderacion);
-  let sumAvance=0;
-  objsParaPromedio.forEach(obj=>sumAvance+=avanceSegunVista(obj,p));
+  let sumAvance=0, sumTiempoObj=0;
+  objsParaPromedio.forEach(obj=>{sumAvance+=avanceSegunVista(obj,p); sumTiempoObj+=tiempoParaObj(obj,currentMonth);});
   const globalPct=objsParaPromedio.length?Math.round(sumAvance/objsParaPromedio.length):0;
-  const globalSem=semSegunVista(globalPct,tiempo);
+  const tiempoGlobal=objsParaPromedio.length?Math.round(sumTiempoObj/objsParaPromedio.length):tiempo;
+  const globalSem=semSegunVista(globalPct,tiempoGlobal);
   const globalColor=globalSem==='sobre'?'#534AB7':globalSem==='verde'?'#639922':globalSem==='amarillo'?'#EF9F27':globalSem==='rojo'?'#E24B4A':'#B4B2A9';
 
   let objsHtml='';
   objsVisibles.forEach(obj=>{
+    const tiempoObj=tiempoParaObj(obj,currentMonth);
     const avance=avanceSegunVista(obj,p);
-    const sem=semSegunVista(avance,tiempo);
+    const sem=semSegunVista(avance,tiempoObj);
     const color=sem==='sobre'?'#534AB7':sem==='verde'?'#639922':sem==='amarillo'?'#EF9F27':sem==='rojo'?'#E24B4A':'#B4B2A9';
     const tagCl='oa-'+sem;
     const tagTxt=sem==='sobre'?'Sobre meta':sem==='verde'?'En línea':sem==='amarillo'?'Rezagado':sem==='rojo'?'En riesgo':'Sin datos';
-    const gap=avance-tiempo;
+    const gap=avance-tiempoObj;
     const brechaStr=vistaMode==='acum'
       ? (sem==='gris'?'Sin datos ingresados':
          sem==='sobre'?`+${avance-100}pp sobre meta anual`:
@@ -1357,7 +1370,7 @@ function renderPerfilCard(pd,p){
       <div class="pobj-right">
         <div class="pobj-bar-bg">
           <div class="pobj-bar-fill" style="width:${barW}%;background:${color}"></div>
-          ${vistaMode==='acum'?`<div class="pobj-marker" style="left:${Math.min(tiempo,98)}%"></div>`:''}
+          ${vistaMode==='acum'?`<div class="pobj-marker" style="left:${Math.min(tiempoObj,98)}%"></div>`:''}
         </div>
         <span class="pobj-pct" style="color:${color}">${avance}%</span>
         <span class="pobj-brecha">${brechaStr}</span>
@@ -1371,7 +1384,7 @@ function renderPerfilCard(pd,p){
       <div class="perfil-avatar" style="background:${av.bg};color:${av.text}">${initials}</div>
       <div>
         <div class="perfil-name">${pd.nombre}</div>
-        <div class="perfil-mes">${vistaMode==='acum'?'Acumulado Ene → '+MESES[currentMonth]+' '+new Date().getFullYear()+' · Línea morada = ritmo esperado ('+tiempo+'%)':'Solo '+MESES[currentMonth]+' '+new Date().getFullYear()}</div>
+        <div class="perfil-mes">${vistaMode==='acum'?'Acumulado Ene → '+MESES[currentMonth]+' '+new Date().getFullYear()+' · Línea morada = ritmo esperado de cada objetivo según cuándo arrancó (prom. '+tiempoGlobal+'%)':'Solo '+MESES[currentMonth]+' '+new Date().getFullYear()}</div>
       </div>
       <div class="perfil-global">
         <div class="perfil-global-n" style="color:${globalColor}">${globalPct}%</div>
@@ -1388,20 +1401,21 @@ function renderAnualPanel(pd,p){
   const tiempo=tiempoAnual(currentMonth);
   let rowsHtml='';
   pd.objetivos.filter(obj=>subVisibleEnMes(obj,currentMonth)).forEach(obj=>{
+    const tiempoObj=tiempoParaObj(obj,currentMonth);
     const avance=avanceAnualObj(obj,p);
-    const sem=semAnual(avance,tiempo);
+    const sem=semAnual(avance,tiempoObj);
     const dotColor=sem==='sobre'?'#534AB7':sem==='verde'?'#639922':sem==='amarillo'?'#EF9F27':sem==='rojo'?'#E24B4A':'#B4B2A9';
     const barColor=sem==='sobre'?'#534AB7':sem==='verde'?'#639922':sem==='amarillo'?'#EF9F27':sem==='rojo'?'#E24B4A':'#B4B2A9';
     const tagCl=`oa-${sem}`;
     const tagTxt=sem==='sobre'?'🚀 Sobrecumplimiento':sem==='verde'?'En línea':sem==='amarillo'?'Rezagado':sem==='rojo'?'En riesgo':'Sin datos';
-    const gap=avance-tiempo;
+    const gap=avance-tiempoObj;
     const gapTxt=sem==='gris'?'':gap>=0?`+${gap}pp vs tiempo`:`${gap}pp vs tiempo`;
     rowsHtml+=`<div class="obj-row">
       <div class="obj-row-dot" style="background:${dotColor}"></div>
       <span class="obj-row-name" title="${obj.titulo}">${obj.num}. ${obj.titulo}</span>
       <div class="obj-row-bar-bg">
         <div class="obj-row-bar" style="width:${avance}%;background:${barColor}"></div>
-        <div class="obj-row-marker" style="left:${tiempo}%"></div>
+        <div class="obj-row-marker" style="left:${tiempoObj}%"></div>
       </div>
       <span class="obj-row-pct" style="color:${dotColor}">${avance}%</span>
       <span class="obj-row-tag ${tagCl}">${tagTxt}</span>
@@ -1411,7 +1425,7 @@ function renderAnualPanel(pd,p){
   anualEl.innerHTML=`<div class="anual-panel">
     <div class="anual-header">
       <span class="anual-title">Cumplimiento anual — ${pd.nombre}</span>
-      <span class="anual-meta">Barra = avance real acumulado · Línea morada = ritmo esperado al mes de ${MESES[currentMonth]} (${tiempo}% del año) · Para estar "en línea" tu barra debe tocar o superar la línea morada</span>
+      <span class="anual-meta">Barra = avance real acumulado · Línea morada = ritmo esperado de CADA objetivo según su propia ventana de meses (no el año calendario completo) · Para estar "en línea" tu barra debe tocar o superar su línea morada</span>
     </div>
     <div class="tiempo-bar-wrap">
       <div class="tiempo-bar-lbl"><span>Ene</span><span>Jun</span><span>Dic</span></div>
@@ -1442,8 +1456,8 @@ function renderObjetivos(){
     const isOpen=openObjs[obj.id]!==undefined?openObjs[obj.id]:obj.open;
     const sem=semObj(obj,currentPerson,currentMonth);
     if(sem==='verde')sv++;else if(sem==='amarillo')sa++;else if(sem==='rojo')sr++;
-    // barra anual de este objetivo
-    const tiempoObj=obj.sinPonderacion?0:tiempo;
+    // barra anual de este objetivo — ritmo esperado segun SU ventana real, no el año calendario completo
+    const tiempoObj=tiempoParaObj(obj,currentMonth);
     const avanceAnual=avanceAnualObj(obj,currentPerson);
     const semA=semAnual(avanceAnual,tiempoObj);
     const barAnualColor=semA==='sobre'?'#534AB7':semA==='verde'?'#639922':semA==='amarillo'?'#EF9F27':semA==='rojo'?'#E24B4A':'#B4B2A9';
