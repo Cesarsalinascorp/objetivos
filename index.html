@@ -1420,8 +1420,9 @@ function renderObjetivos(){
     const sem=semObj(obj,currentPerson,currentMonth);
     if(sem==='verde')sv++;else if(sem==='amarillo')sa++;else if(sem==='rojo')sr++;
     // barra anual de este objetivo
+    const tiempoObj=obj.sinPonderacion?0:tiempo;
     const avanceAnual=avanceAnualObj(obj,currentPerson);
-    const semA=semAnual(avanceAnual,tiempo);
+    const semA=semAnual(avanceAnual,tiempoObj);
     const barAnualColor=semA==='sobre'?'#534AB7':semA==='verde'?'#639922':semA==='amarillo'?'#EF9F27':semA==='rojo'?'#E24B4A':'#B4B2A9';
     const tagAnualCl=`oa-${semA}`;
     const tagAnualTxt=semA==='sobre'?'🚀 Sobrecumplimiento':semA==='verde'?'En línea':semA==='amarillo'?'Rezagado':semA==='rojo'?'En riesgo':'Sin datos';
@@ -1562,14 +1563,14 @@ function renderObjetivos(){
         <span class="chev${isOpen?' open':''}">▶</span>
       </div>
       <div class="obj-anual-strip">
-        <span class="obj-anual-lbl" title="Barra: avance real acumulado. Línea morada: ritmo esperado al mes actual (${tiempo}% del año = ${MESES[currentMonth]})">Cumplimiento anual</span>
+        <span class="obj-anual-lbl" title="Barra: avance real acumulado. Línea morada: ritmo esperado al mes actual (${tiempoObj}% del año = ${MESES[currentMonth]})">Cumplimiento anual</span>
         <div class="obj-anual-bar-bg">
           <div class="obj-anual-bar-fill" style="width:${Math.min(100,avanceAnual)}%;background:${barAnualColor}"></div>
-          <div class="obj-anual-marker" style="left:${Math.min(tiempo,99)}%"></div>
+          <div class="obj-anual-marker" style="left:${Math.min(tiempoObj,99)}%"></div>
         </div>
         <span class="obj-anual-pct" style="color:${barAnualColor}">${avanceAnual}%</span>
         <span class="obj-anual-tag ${tagAnualCl}">${tagAnualTxt}</span>
-        <span style="font-size:10px;color:var(--text3);white-space:nowrap">esperado: ${tiempo}%</span>
+        <span style="font-size:10px;color:var(--text3);white-space:nowrap">esperado: ${tiempoObj}%</span>
       </div>
       <div id="ob-${obj.id}" style="display:${isOpen?'block':'none'}">
         <div class="obj-body">${subsHtml}</div>
