@@ -472,7 +472,6 @@ function updateAdminUI(){
     <div class="sum-card"><div class="sum-n" id="s-rojo" style="color:#E24B4A">0</div><div class="sum-l">En riesgo</div></div>
   </div>
   <div id="perfil-card"></div>
-  <div id="aprendizajes-panel"></div>
   <div id="anual-panel"></div>
   <div id="obj-panel"></div>
 </div>
@@ -1289,60 +1288,6 @@ function semSegunVista(avance,tiempo){
   return 'rojo';
 }
 
-// Analisis rapido del mes: para cada objetivo visible, calcula si esta "no iniciado",
-// "en curso" o "completado" ESTE mes puntual (sin importar el toggle Mes/Acumulado activo),
-// y arma una nota corta con lo que falta o si va bien.
-function renderAprendizajes(pd,p){
-  const el=document.getElementById('aprendizajes-panel');
-  if(!pd||!pd.objetivos.length){el.innerHTML='';return;}
-  const m=currentMonth;
-  const prevFrom=currentMonthFrom;
-  currentMonthFrom=m; // forzar calculo "solo este mes", independiente del toggle Mes/Acumulado
-  let rowsHtml='';
-  pd.objetivos.filter(obj=>subVisibleEnMes(obj,m)).forEach(obj=>{
-    let totalCampos=0, conDato=0, sumaPct=0, pesoTotal=0, subsPendientes=[];
-    obj.subs.forEach(s=>{
-      if(!subVisibleEnMes(s,m)) return;
-      const pct=avancePct(s,p,m);
-      sumaPct+=pct*(s.peso||100);
-      pesoTotal+=(s.peso||100);
-      let subTieneDato=false;
-      s.campos.forEach(c=>{
-        if(c.tipo==='select') return;
-        totalCampos++;
-        const v=getOV(p,m,s.id,c.key);
-        if(v && v!=='0' && v!==''){ conDato++; subTieneDato=true; }
-      });
-      if(!subTieneDato) subsPendientes.push(s.titulo.split('—')[0].trim());
-    });
-    const avance=pesoTotal?Math.round(sumaPct/pesoTotal):0;
-    let estadoCl, estadoTxt, nota;
-    if(conDato===0){
-      estadoCl='no-iniciado'; estadoTxt='No iniciado';
-      nota=`Aún no hay datos cargados para ${MESES[m]}.`;
-    } else if(avance>=100){
-      estadoCl='completado'; estadoTxt='Completado';
-      nota=`Meta de ${MESES[m]} cumplida (${avance}%).`;
-    } else {
-      estadoCl='en-curso'; estadoTxt='En curso';
-      nota=`Avance parcial (${avance}%)`+(subsPendientes.length?` — falta cargar: ${subsPendientes.slice(0,2).join(', ')}${subsPendientes.length>2?'…':''}.`:'.');
-    }
-    rowsHtml+=`<div class="aprend-row">
-      <span class="aprend-badge ${estadoCl}">${estadoTxt}</span>
-      <div class="aprend-body">
-        <div class="aprend-obj">${obj.num}. ${obj.titulo}</div>
-        <div class="aprend-nota">${nota}</div>
-      </div>
-    </div>`;
-  });
-  currentMonthFrom=prevFrom; // restaurar el toggle real
-  el.innerHTML=`<div class="aprend-card">
-    <div class="aprend-title">📋 Aprendizajes rápidos — ${MESES[m]}</div>
-    <div class="aprend-sub">Estado de cada objetivo puntual a este mes, independiente de la vista Mes/Acumulado</div>
-    ${rowsHtml||'<div style="font-size:11px;color:var(--text3)">No hay objetivos activos este mes.</div>'}
-  </div>`;
-}
-
 function renderPerfilCard(pd,p){
   const el=document.getElementById('perfil-card');
   if(!pd||!pd.objetivos.length){el.innerHTML='';return;}
@@ -1468,7 +1413,6 @@ function renderObjetivos(){
     return;
   }
   renderPerfilCard(pd,currentPerson);
-  renderAprendizajes(pd,currentPerson);
   renderAnualPanel(pd,currentPerson);
   const tiempo=tiempoAnual(currentMonth);
   let sv=0,sa=0,sr=0,html='',visibleCount=0;
