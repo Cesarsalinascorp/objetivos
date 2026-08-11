@@ -767,10 +767,10 @@ const objData={
         {key:'trafico_crecimiento',lbl:'Crecimiento tráfico pauta (%)',meta:15,meta_lbl:'Meta: 15%',tipo:'acum',inicio:1},
         {key:'permanencia',lbl:'Permanencia promedio (seg)',meta:120,meta_lbl:'Meta: 120 seg',tipo:'puntual',inicio:1}]}
     ]},
-    {id:'d3',num:3,titulo:'Visibilidad farmacias — 15 productos/mes, digital shelf +8%',open:false,subs:[
+    {id:'d3',num:3,titulo:'Visibilidad farmacias — 15 productos/mes, digital shelf +8%',open:false,visInicio:6,subs:[
       {id:'d3a',titulo:'KWs y descripciones de 15 productos/mes, digital shelf +8%',peso:100,campos:[
-        {key:'productos_mes',lbl:'Productos optimizados este mes',meta:15,meta_lbl:'Meta: 15',tipo:'puntual',inicio:1},
-        {key:'shelf_acum',lbl:'Mejora digital shelf acumulada (%)',meta:8,meta_lbl:'Meta: 8%',tipo:'acum',inicio:1}]}
+        {key:'productos_mes',lbl:'Productos optimizados este mes',meta:15,meta_lbl:'Meta: 15',tipo:'puntual',inicio:6},
+        {key:'shelf_acum',lbl:'Mejora digital shelf acumulada (%)',meta:8,meta_lbl:'Meta: 8%',tipo:'acum',inicio:6}]}
     ]},
     {id:'d4',num:4,titulo:'SFMC Mailing Pacientes — IP verde, OR ≥20%, CTOR ≥8%',open:false,subs:[
       {id:'d4a',titulo:'Mantener reputación IP verde',peso:30,campos:[
@@ -795,9 +795,9 @@ const objData={
         {key:'alin_otc',lbl:'OTC',meta:1,meta_lbl:'Meta: ≥1 envío alineado',tipo:'alin_pct',inicio:1,target:80,
          hint:'Ingresa 1 si enviaste al menos 1 mail a pacientes alineado con OTC este mes.'}]}
     ]},
-    {id:'d5',num:5,titulo:'Campaña BS — PMO 2026, tráfico +25%, 5.000 leads en SF',open:false,subs:[
+    {id:'d5',num:5,titulo:'Campaña BS — PMO 2026, tráfico +25%, 5.000 leads en SF',open:false,visInicio:6,subs:[
       {id:'d5a',titulo:'PMO campaña: reporte mensual con 2 insights por UNE antes del día 15',peso:60,campos:[
-        {key:'reporte',lbl:'Reporte entregado antes día 15 (100=Sí)',meta:100,meta_lbl:'Meta: entregar',tipo:'entregable',inicio:6}]},
+        {key:'reporte',lbl:'Reporte entregado antes día 15 (100=Sí)',meta:100,meta_lbl:'Meta: entregar',tipo:'entregable',inicio:7}]},
       {id:'d5b',titulo:'Crecimiento 25% tráfico de calidad y 5.000 leads en SF a dic 2026',peso:40,campos:[
         {key:'trafico_calidad',lbl:'Crecimiento tráfico calidad (%)',meta:25,meta_lbl:'Meta: 25%',tipo:'acum',inicio:6},
         {key:'leads',lbl:'Leads acumulados en SF',meta:5000,meta_lbl:'Meta: 5.000',tipo:'acum',inicio:6}]}
