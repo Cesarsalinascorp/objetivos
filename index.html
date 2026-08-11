@@ -699,7 +699,7 @@ const objData={
     ]},
     {id:'c2',num:2,titulo:'Campaña BS 2026 — seguimiento, optimización y Looker completo antes del Q2',open:false,visInicio:6,subs:[
       {id:'c2b',titulo:'Dashboard Looker completo en funnel, validado y operativo antes del 30 jun 2026 con insights mensuales',peso:30,campos:[
-        {key:'looker_ok',lbl:'Looker terminado y validado (100=Sí)',meta:100,meta_lbl:'Meta: 30 jun 2026',tipo:'entregable',inicio:6}]},
+        {key:'looker_ok',lbl:'Looker terminado y validado (100=Sí)',meta:100,meta_lbl:'Meta: 30 jun 2026',tipo:'entregable',inicio:6,unico:true}]},
       {id:'c2c',titulo:'Crecimiento 25% tráfico de calidad y 5.000 nuevos leads segmentados en SF a dic 2026 (periodo base 17 jul–31 dic, vs 2025)',peso:40,campos:[
         {key:'sesiones',lbl:'Sesiones acumuladas',meta:762691,meta_lbl:'Meta: 762.691 (base 2025: 586.685)',tipo:'acum',inicio:6,
          hint:'Ingresa las sesiones acumuladas del periodo 17 jul–31 dic 2026. Base histórica 2025 del mismo periodo: 586.685.'},
@@ -980,7 +980,14 @@ function metaEsperada(campo, m){
 */
 function semCampo(c, v, m, subId, p){
   if(c.tipo==='entregable'){
-    const done=getOV(p||currentPerson,m,subId||'',c.key+'_done')==='1';
+    const per=p||currentPerson;
+    let done=getOV(per,m,subId||'',c.key+'_done')==='1';
+    if(!done && c.unico){
+      // Entrega única (no recurrente): una vez cumplida en cualquier mes, queda cumplida para siempre
+      for(let mi=(c.inicio||1);mi<m;mi++){
+        if(getOV(per,mi,subId||'',c.key+'_done')==='1'){done=true;break;}
+      }
+    }
     if(done) return 'verde';
     if(m < (c.inicio||1)) return 'gris';
     return 'gris';
@@ -1043,6 +1050,14 @@ function avancePct(sub,p,m){
     if(c.tipo==='select') return; // IP es solo informativo, no pondera
     if(!campoVisibleEnMes(c,m)) return; // fuera de su ventana de meses (ej. canal nuevo)
     if(c.tipo==='entregable'){
+      if(c.unico){
+        let doneAlguna=false;
+        for(let mi=(c.inicio||1);mi<=m;mi++){
+          if(getOV(p,mi,sub.id,c.key+'_done')==='1'){doneAlguna=true;break;}
+        }
+        vals.push(doneAlguna?100:0);
+        return;
+      }
       const inicio=Math.max(c.inicio||1,mFrom);
       const mesesTransc=Math.max(0,m-inicio+1);
       if(mesesTransc===0){vals.push(0);return;}
@@ -1213,6 +1228,14 @@ function avanceAnualPct(sub,p,finMes){
     const inicio=Math.max(c.inicio||1, c.visInicio||1);
     const finCampo=Math.min(finMes, c.visFin||12);
     if(c.tipo==='entregable'){
+      if(c.unico){
+        let doneAlguna=false;
+        for(let m=inicio;m<=Math.min(currentMonth,finCampo);m++){
+          if(getOV(p,m,sub.id,c.key+'_done')==='1'){doneAlguna=true;break;}
+        }
+        vals.push(doneAlguna?100:0);
+        return;
+      }
       const mesesTotal=finCampo-inicio+1;
       let completados=0;
       for(let m=inicio;m<=finCampo;m++){
