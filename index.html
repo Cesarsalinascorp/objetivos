@@ -1389,6 +1389,7 @@ function renderPerfilCard(pd,p){
       <div class="perfil-global">
         <div class="perfil-global-n" style="color:${globalColor}">${globalPct}%</div>
         <div class="perfil-global-l">${vistaMode==='acum'?'cumplimiento global (anual)':'cumplimiento del mes'}</div>
+        ${vistaMode==='acum'?`<div class="perfil-global-l" style="margin-top:1px">${globalPct}% real / ${tiempoGlobal}% esperado</div>`:''}
       </div>
     </div>
     <div class="perfil-grid">${objsHtml}</div>
