@@ -763,7 +763,7 @@ const objData={
         {key:'ctr_google',lbl:'CTR Google Search (%)',meta:22.34,meta_lbl:'Meta: 22,34% (base 2025: 20,31%)',tipo:'puntual',inicio:1},
         {key:'cpc_google',lbl:'CPC Google Search (CLP)',meta:10.8,meta_lbl:'Meta: ≤$10,8 (base 2025: $12 — menor es mejor)',tipo:'puntual',inicio:1,invertido:true,
          hint:'Ingresa el CPC promedio del mes en CLP. Como menor CPC es mejor, se considera sobrecumplido si es igual o menor a la meta.'},
-        {key:'sesiones_meta',lbl:'Sesiones Meta Ads acumuladas',meta:17000,meta_lbl:'Meta: 17.000 sesiones (+10%)',tipo:'acum',inicio:6,
+        {key:'sesiones_meta',lbl:'Sesiones Meta Ads acumuladas',meta:17000,meta_lbl:'Meta: 17.000 sesiones (+10%)',tipo:'acum',inicio:6,visInicio:6,visFin:12,
          hint:'Canal nuevo desde junio, sin histórico 2025. Meta total: 17.000 sesiones acumuladas entre junio y diciembre 2026. Ingresa el acumulado corrido cada mes.'}]},
       {id:'d2c',titulo:'Crecimiento tráfico pauta +15%, permanencia ≥2 min',peso:35,campos:[
         {key:'sesiones_awon',lbl:'Sesiones AWON acumuladas',meta:575963,meta_lbl:'Meta: 575.963 (base 2025: 500.837)',tipo:'acum',inicio:1},
@@ -942,6 +942,15 @@ function setONota(p,m,sid,v){const ok=cloudSet(`onota_${p}_m${m}_${sid}`,v); if(
    visFreq: cada cuántos meses se muestra a partir de visInicio (default 1 = todos los meses)
    Ej: visInicio:7, visFreq:2 → visible en jul(7), sep(9), nov(11)
 */
+/* ── Visibilidad de un CAMPO individual por mes (independiente de subVisibleEnMes, que es a nivel de sub) ──
+   Permite que un campo puntual dentro de un sub aparezca solo en cierto rango de meses,
+   ej. un canal nuevo que arranca a mitad de año. */
+function campoVisibleEnMes(c, m){
+  if(!c.visInicio) return true;
+  const fin=c.visFin||12;
+  return m>=c.visInicio && m<=fin;
+}
+
 function subVisibleEnMes(sub, m){
   if(sub.activo===false) return false; // opcional / aún no iniciado: oculto y fuera de la ponderación en todos los meses
   if(!sub.visInicio) return true; // sin filtro configurado = siempre visible
@@ -1031,6 +1040,7 @@ function avancePct(sub,p,m){
   let vals=[];
   sub.campos.forEach(c=>{
     if(c.tipo==='select') return; // IP es solo informativo, no pondera
+    if(!campoVisibleEnMes(c,m)) return; // fuera de su ventana de meses (ej. canal nuevo)
     if(c.tipo==='entregable'){
       const inicio=Math.max(c.inicio||1,mFrom);
       const mesesTransc=Math.max(0,m-inicio+1);
@@ -1110,6 +1120,7 @@ function alertMsg(sub,p,m,mes){
     let cumplidos=[], pendientes=[];
     sub.campos.forEach(c=>{
       if(c.tipo==='entregable'||c.tipo==='select') return;
+      if(!campoVisibleEnMes(c,m)) return;
       const v=parseFloat(getOV(p,m,sub.id,c.key));
       const lbl=c.lbl.replace(/— .*/,'').replace(/\(.*\)/,'').trim();
       const cumple=c.invertido?(v<=c.meta):(v>=c.meta);
@@ -1132,6 +1143,7 @@ function alertMsg(sub,p,m,mes){
   let brechas=[];
   sub.campos.forEach(c=>{
     if(c.tipo==='select') return; // IP no genera brecha
+    if(!campoVisibleEnMes(c,m)) return;
     const v=parseFloat(getOV(p,m,sub.id,c.key));
     const esp=metaEsperada(c,m);
     if(!isNaN(v)&&esp&&esp>0){
@@ -1189,18 +1201,20 @@ function avanceAnualPct(sub,p,finMes){
   let vals=[];
   sub.campos.forEach(c=>{
     if(c.tipo==='select') return; // IP solo informativo, no pondera anual
-    const inicio=c.inicio||1;
+    if(c.visInicio && c.visInicio>finMes) return; // este campo aun no arranca dentro del periodo evaluado
+    const inicio=Math.max(c.inicio||1, c.visInicio||1);
+    const finCampo=Math.min(finMes, c.visFin||12);
     if(c.tipo==='entregable'){
-      const mesesTotal=finMes-inicio+1;
+      const mesesTotal=finCampo-inicio+1;
       let completados=0;
-      for(let m=inicio;m<=finMes;m++){
+      for(let m=inicio;m<=finCampo;m++){
         if(getOV(p,m,sub.id,c.key+'_done')==='1') completados++;
       }
       vals.push(Math.round(completados/mesesTotal*100));
     } else if(c.tipo==='acum'){
       // Acumulativo: el valor crece mes a mes hacia una meta final anual — se mide el mejor valor vs esa meta.
       let bestV=0;
-      for(let m=1;m<=Math.min(currentMonth,finMes);m++){
+      for(let m=inicio;m<=Math.min(currentMonth,finCampo);m++){
         const v=parseFloat(getOV(p,m,sub.id,c.key));
         if(!isNaN(v)&&v>0) bestV=Math.max(bestV,v/c.meta*100);
       }
@@ -1208,9 +1222,9 @@ function avanceAnualPct(sub,p,finMes){
     } else {
       // puntual / alin_pct: meta se re-evalúa cada mes (no es acumulativa), así que se mide
       // igual que un entregable — meses cumplidos sobre meses totales del período, no "¿alguna vez?".
-      const mesesTotal=finMes-inicio+1;
+      const mesesTotal=finCampo-inicio+1;
       let completados=0;
-      for(let m=inicio;m<=finMes;m++){
+      for(let m=inicio;m<=finCampo;m++){
         const v=parseFloat(getOV(p,m,sub.id,c.key));
         if(!isNaN(v)&&v>0&&(c.invertido?v<=c.meta:v>=c.meta)) completados++;
       }
@@ -1533,6 +1547,7 @@ function renderObjetivos(){
         </div>`;
       }
       sub.campos.forEach(c=>{
+        if(!campoVisibleEnMes(c,currentMonth)) return; // fuera de su ventana de meses (ej. canal nuevo)
         if(c.tipo==='entregable'){
           hasEntregable=true;
           const done=getOV(currentPerson,currentMonth,sub.id,c.key+'_done')==='1';
