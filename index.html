@@ -1123,7 +1123,9 @@ function alertMsg(sub,p,m,mes){
       if(!campoVisibleEnMes(c,m)) return;
       const v=parseFloat(getOV(p,m,sub.id,c.key));
       const lbl=c.lbl.replace(/— .*/,'').replace(/\(.*\)/,'').trim();
-      const cumple=c.invertido?(v<=c.meta):(v>=c.meta);
+      const esp=metaEsperada(c,m);
+      const objetivo=(esp&&esp>0)?esp:c.meta; // usar ritmo esperado del mes si aplica (ej. acum), si no la meta fija
+      const cumple=c.invertido?(v<=objetivo):(v>=objetivo);
       if(!isNaN(v)&&cumple) cumplidos.push(lbl);
       else pendientes.push(lbl);
     });
