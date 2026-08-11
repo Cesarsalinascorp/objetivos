@@ -1124,10 +1124,15 @@ function alertMsg(sub,p,m,mes){
     // Mensaje limpio: listar qué UNEs/campos se cumplieron y cuáles no
     let cumplidos=[], pendientes=[];
     sub.campos.forEach(c=>{
-      if(c.tipo==='entregable'||c.tipo==='select') return;
+      if(c.tipo==='select') return;
       if(!campoVisibleEnMes(c,m)) return;
-      const v=parseFloat(getOV(p,m,sub.id,c.key));
       const lbl=c.lbl.replace(/— .*/,'').replace(/\(.*\)/,'').trim();
+      if(c.tipo==='entregable'){
+        const done=getOV(p,m,sub.id,c.key+'_done')==='1';
+        if(done) cumplidos.push(lbl); else pendientes.push(lbl);
+        return;
+      }
+      const v=parseFloat(getOV(p,m,sub.id,c.key));
       const esp=metaEsperada(c,m);
       const objetivo=(esp&&esp>0)?esp:c.meta; // usar ritmo esperado del mes si aplica (ej. acum), si no la meta fija
       const cumple=c.invertido?(v<=objetivo):(v>=objetivo);
