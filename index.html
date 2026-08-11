@@ -1007,31 +1007,14 @@ function semCampo(c, v, m, subId, p){
 
 function semSub(sub,p,m){
   if(!subVisibleEnMes(sub,m)) return'gris'; // fuera de ventana de fechas/frecuencia: no aplica este mes
-  let scores=[];
-  sub.campos.forEach(c=>{
-    if(c.tipo==='select') return;
-    if(c.tipo==='alin_pct') return; // se evalúa como grupo abajo
-    const v=parseFloat(getOV(p,m,sub.id,c.key));
-    scores.push(semCampo(c,v,m,sub.id,p));
-  });
-  // Evaluar grupo alin_pct como % de cumplimiento vs target
-  const alinCampos=sub.campos.filter(c=>c.tipo==='alin_pct');
-  if(alinCampos.length>0){
-    const target=alinCampos[0].target||90;
-    const cumplidos=alinCampos.filter(c=>{
-      const v=parseFloat(getOV(p,m,sub.id,c.key));
-      return !isNaN(v)&&v>=1;
-    }).length;
-    const pctReal=Math.round(cumplidos/alinCampos.length*100);
-    if(pctReal>=target) scores.push('verde');
-    else if(pctReal>=(target-15)) scores.push('amarillo');
-    else scores.push('rojo');
-  }
-  if(!scores.length||scores.every(s=>s==='gris'))return'gris';
-  if(scores.some(s=>s==='rojo'))return'rojo';
-  if(scores.some(s=>s==='amarillo'))return'amarillo';
-  if(scores.every(s=>s==='sobre'||s==='verde'||s==='gris'))return'verde';
-  return'verde';
+  // El color sale del mismo % ponderado que se muestra en "Avance mes actual" —
+  // así el color y el número nunca se contradicen entre sí.
+  const avance=avancePct(sub,p,m);
+  if(avance===0) return'gris';
+  if(avance>=100) return'sobre';
+  if(avance>=90) return'verde';
+  if(avance>=70) return'amarillo';
+  return'rojo';
 }
 function semObj(obj,p,m){
   const ss=obj.subs.map(s=>semSub(s,p,m));
