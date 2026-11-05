@@ -767,11 +767,16 @@ const objData={
         {key:'permanencia_awon',lbl:'Duración promedio AWON',meta:120,meta_lbl:'Meta: mantener ≥2:00 (base 2025: 1:49)',tipo:'puntual',inicio:1,formato:'mmss',
          hint:'Ingresa la duración promedio en formato minutos:segundos (ej: 1:52). Base histórica 2025: 1:49.'}]}
     ]},
-    {id:'d3',num:3,titulo:'Visibilidad farmacias — 15 productos/mes, digital shelf +8%',open:false,visInicio:6,subs:[
-      {id:'d3a',titulo:'KWs y descripciones de 15 productos/mes, digital shelf +8%',peso:100,campos:[
+    {id:'d3',num:3,titulo:'Visibilidad farmacias — 15 productos/mes, digital shelf +8%',open:false,visInicio:6,nota:'Ponderación sugerida (60% / 25% / 15%) para revisión con Jefatura; no corresponde a un cumplimiento ya aprobado.',subs:[
+      {id:'d3a',titulo:'Optimización de productos — 15 productos mensuales con keywords y descripciones trabajadas y entregadas a KAM',peso:60,campos:[
         {key:'productos_mes',lbl:'Productos optimizados este mes',meta:15,meta_lbl:'Meta: 15 por mes (se acumula: lo que sobra un mes cubre los siguientes)',tipo:'puntual',inicio:6,acumulaMeses:true,
-         hint:'Ingresa los productos optimizados SOLO de este mes. El panel suma mes a mes y compara contra 15 × meses transcurridos, así que si un mes optimizas más de 15, el excedente cubre los meses siguientes.'},
-        {key:'shelf_acum',lbl:'Mejora digital shelf acumulada (%)',meta:8,meta_lbl:'Meta: 8%',tipo:'acum',inicio:6}]}
+         hint:'Ingresa los productos optimizados (keywords y descripciones entregadas a KAM) SOLO de este mes. El panel suma mes a mes y compara contra 15 × meses transcurridos, así que si un mes optimizas más de 15, el excedente cubre los meses siguientes.'}]},
+      {id:'d3b',titulo:'Gestión y seguimiento — coordinación, registro de avances, seguimiento de implementación y reporte mensual',peso:25,campos:[
+        {key:'gestion_reporte',lbl:'Gestión, seguimiento y reporte mensual realizados',meta:100,meta_lbl:'Meta: mensual',tipo:'entregable',inicio:6,
+         hint:'Marca completado cuando cierres el mes con la coordinación, el registro de avances, el seguimiento de implementación y el reporte mensual. Agrega el link del reporte y la fecha.'}]},
+      {id:'d3c',titulo:'Mejora de indicadores Digital Shelf — incremento promedio de 8% en los productos implementados',peso:15,campos:[
+        {key:'shelf_acum',lbl:'Mejora digital shelf acumulada (%)',meta:8,meta_lbl:'Meta: 8% de incremento promedio en los productos implementados',tipo:'acum',inicio:6,
+         hint:'Ingresa el incremento promedio acumulado (%) de los indicadores de Digital Shelf en los productos ya implementados. La meta es 8.'}]}
     ]},
     {id:'d4',num:4,titulo:'SFMC Mailing Pacientes — IP verde, OR ≥20%, CTOR ≥8%',open:false,subs:[
       {id:'d4a',titulo:'Mantener reputación IP verde',peso:30,campos:[
@@ -1653,7 +1658,7 @@ function renderObjetivos(){
         <span style="font-size:10px;color:var(--text3);white-space:nowrap">esperado: ${tiempoObj}%</span>
       </div>
       <div id="ob-${obj.id}" style="display:${isOpen?'block':'none'}">
-        <div class="obj-body">${subsHtml}</div>
+        <div class="obj-body">${obj.nota?`<div style="font-size:12px;color:var(--text2);margin:0 0 10px;font-style:italic">${obj.nota}</div>`:''}${subsHtml}</div>
       </div>
     </div>`;
   });
