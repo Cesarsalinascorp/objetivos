@@ -1127,6 +1127,15 @@ function avancePct(sub,p,m){
 }
 
 /* Texto de alerta enriquecido con datos concretos */
+function entregableHecho(p,m,subId,c){
+  if(getOV(p,m,subId,c.key+'_done')==='1') return true;
+  if(c.unico){ // entrega única: si ya se cumplió en un mes anterior, sigue cumplida
+    for(let mi=(c.inicio||1);mi<m;mi++){
+      if(getOV(p,mi,subId,c.key+'_done')==='1') return true;
+    }
+  }
+  return false;
+}
 function alertMsg(sub,p,m,mes){
   const sem=semSub(sub,p,m);
   if(sem==='gris')return{t:'',m:''};
@@ -1138,7 +1147,7 @@ function alertMsg(sub,p,m,mes){
       if(!campoVisibleEnMes(c,m)) return;
       const lbl=c.lbl.replace(/— .*/,'').replace(/\(.*\)/,'').trim();
       if(c.tipo==='entregable'){
-        const done=getOV(p,m,sub.id,c.key+'_done')==='1';
+        const done=entregableHecho(p,m,sub.id,c);
         if(done) cumplidos.push(lbl); else pendientes.push(lbl);
         return;
       }
@@ -1160,7 +1169,7 @@ function alertMsg(sub,p,m,mes){
         : `✓ Alineación ${pctReal}% vs target ${target}%. Cumplido: ${cumplidos.join(', ')}. No cumplido: ${pendientes.join(', ')}.`;
       return{t:'sobre',m:msg};
     }
-    return{t:'sobre',m:`✓ Meta alcanzada en ${mes}. ${cumplidos.length} de ${sub.campos.length} campos en meta.`};
+    return{t:'sobre',m:`✓ Meta alcanzada en ${mes}. ${cumplidos.length} de ${cumplidos.length+pendientes.length} campos en meta.`};
   }
   // Calcular brecha para el mensaje
   let brechas=[];
@@ -1237,6 +1246,7 @@ function avanceAnualPct(sub,p,finMes){
     if(c.tipo==='select' && !c.pondera) return; // IP solo informativo si no pondera
     if(c.visInicio && c.visInicio>finMes) return; // este campo aun no arranca dentro del periodo evaluado
     const inicio=Math.max(c.inicio||1, c.visInicio||1);
+    if(inicio>currentMonth) return; // campo que aún no arranca al mes evaluado: no cuenta (ni suma ni penaliza)
     const finCampo=Math.min(finMes, c.visFin||12);
     if(c.tipo==='entregable'){
       if(c.unico){
@@ -1274,7 +1284,7 @@ function avanceAnualPct(sub,p,finMes){
       vals.push(Math.round(completados/mesesTotal*100));
     }
   });
-  return vals.length?Math.round(vals.reduce((a,b)=>a+b)/vals.length):0;
+  return vals.length?Math.round(vals.reduce((a,b)=>a+b)/vals.length):null; // null = ningún campo aplica aún
 }
 
 // Calcula avance anual promedio de un objetivo (promedio de sus sub-objetivos ponderado)
@@ -1284,6 +1294,7 @@ function avanceAnualObj(obj,p){
   obj.subs.forEach(s=>{
     if(s.visInicio && currentMonth < s.visInicio) return; // aún no arranca este sub — no penaliza el promedio
     const a=avanceAnualPct(s,p,finMes);
+    if(a===null) return; // sin campos activos todavía: no entra al promedio
     total+=a*(s.peso||100);
     peso+=(s.peso||100);
   });
