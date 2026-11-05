@@ -769,7 +769,8 @@ const objData={
     ]},
     {id:'d3',num:3,titulo:'Visibilidad farmacias — 15 productos/mes, digital shelf +8%',open:false,visInicio:6,subs:[
       {id:'d3a',titulo:'KWs y descripciones de 15 productos/mes, digital shelf +8%',peso:100,campos:[
-        {key:'productos_mes',lbl:'Productos optimizados este mes',meta:15,meta_lbl:'Meta: 15',tipo:'puntual',inicio:6},
+        {key:'productos_mes',lbl:'Productos optimizados este mes',meta:15,meta_lbl:'Meta: 15 por mes (se acumula: lo que sobra un mes cubre los siguientes)',tipo:'puntual',inicio:6,acumulaMeses:true,
+         hint:'Ingresa los productos optimizados SOLO de este mes. El panel suma mes a mes y compara contra 15 × meses transcurridos, así que si un mes optimizas más de 15, el excedente cubre los meses siguientes.'},
         {key:'shelf_acum',lbl:'Mejora digital shelf acumulada (%)',meta:8,meta_lbl:'Meta: 8%',tipo:'acum',inicio:6}]}
     ]},
     {id:'d4',num:4,titulo:'SFMC Mailing Pacientes — IP verde, OR ≥20%, CTOR ≥8%',open:false,subs:[
@@ -952,6 +953,18 @@ function subVisibleEnMes(sub, m){
   return (m - sub.visInicio) % freq === 0;
 }
 
+/* Campo puntual con acumulaMeses:true — se ingresa lo hecho cada mes, pero se evalúa la SUMA corrida
+   contra la meta mensual × meses transcurridos. Así lo que sobra en un mes cubre los siguientes. */
+function sumaMeses(p,subId,c,m){
+  let t=0;
+  for(let mi=(c.inicio||1);mi<=m;mi++){
+    const v=parseFloat(getOV(p,mi,subId,c.key));
+    if(!isNaN(v)) t+=v;
+  }
+  return t;
+}
+function metaAcumMeses(c,m){return c.meta*Math.max(0,m-(c.inicio||1)+1);}
+
 function metaEsperada(campo, m){
   const inicio = campo.inicio || 1;
   if(m < inicio) return null; // aún no aplica
@@ -1079,6 +1092,15 @@ function avancePct(sub,p,m){
       } else {
         // Puntual: promediar los meses del rango que tienen dato
         let puntuales=[];
+        if(c.acumulaMeses){
+          // suma corrida vs meta mensual × meses transcurridos (lo que sobra un mes cubre los siguientes)
+          for(let mi=Math.max(mFrom,c.inicio||1);mi<=m;mi++){
+            const tot=sumaMeses(p,sub.id,c,mi), esp=metaAcumMeses(c,mi);
+            if(tot>0&&esp>0) puntuales.push(Math.min(120,Math.round(tot/esp*100)));
+          }
+          if(puntuales.length>0) vals.push(Math.round(puntuales.reduce((a,b)=>a+b)/puntuales.length));
+          return;
+        }
         for(let mi=mFrom;mi<=m;mi++){
           let v=parseFloat(getOV(p,mi,sub.id,c.key));
           if(c.tipo==='select'&&c.pondera&&!isNaN(v)) v=v*25;
@@ -1153,7 +1175,8 @@ function alertMsg(sub,p,m,mes){
       }
       let v=parseFloat(getOV(p,m,sub.id,c.key));
       if(c.tipo==='select'&&c.pondera&&!isNaN(v)) v=v*25;
-      const esp=metaEsperada(c,m);
+      let esp=metaEsperada(c,m);
+      if(c.acumulaMeses){v=sumaMeses(p,sub.id,c,m); esp=metaAcumMeses(c,m);}
       const objetivo=(esp&&esp>0)?esp:c.meta; // usar ritmo esperado del mes si aplica (ej. acum), si no la meta fija
       const cumple=c.invertido?(v<=objetivo):(v>=objetivo);
       if(!isNaN(v)&&cumple) cumplidos.push(lbl);
@@ -1176,8 +1199,9 @@ function alertMsg(sub,p,m,mes){
   sub.campos.forEach(c=>{
     if(c.tipo==='select') return; // IP no genera brecha
     if(!campoVisibleEnMes(c,m)) return;
-    const v=parseFloat(getOV(p,m,sub.id,c.key));
-    const esp=metaEsperada(c,m);
+    let v=parseFloat(getOV(p,m,sub.id,c.key));
+    let esp=metaEsperada(c,m);
+    if(c.acumulaMeses){v=sumaMeses(p,sub.id,c,m); esp=metaAcumMeses(c,m);}
     if(!isNaN(v)&&esp&&esp>0){
       const diff=c.invertido?Math.round(v-esp):Math.round(esp-v);
       if(diff>0)brechas.push(`${c.lbl}: faltan ${diff.toLocaleString('es-CL')} para ir en línea`);
@@ -1272,6 +1296,12 @@ function avanceAnualPct(sub,p,finMes){
       }
       vals.push(Math.min(100,Math.round(bestV)));
     } else {
+      if(c.acumulaMeses){
+        // suma corrida hasta el mes evaluado vs meta mensual × meses totales del período
+        const tot=sumaMeses(p,sub.id,c,Math.min(currentMonth,finCampo));
+        vals.push(Math.min(100,Math.round(tot/metaAcumMeses(c,finCampo)*100)));
+        return;
+      }
       // puntual / alin_pct: meta se re-evalúa cada mes (no es acumulativa), así que se mide
       // igual que un entregable — meses cumplidos sobre meses totales del período, no "¿alguna vez?".
       const mesesTotal=finCampo-inicio+1;
